@@ -9,11 +9,12 @@ window.addEventListener('load', event => {
 
 function usersmagic() {
   // Constant variables
-  const URL_PREFIX = 'https://embed.usersmagic.com/embed'; // The url the requests will be made to
-  // const URL_PREFIX = 'http://localhost:3000/embed';
+  // const URL_PREFIX = 'https://integration.usersmagic.com'; // The url the requests will be made to
+  const URL_PREFIX = 'http://localhost:3000';
   const COOKIE_PREFIX = 'usersmagic_'; // All cookies start with usersmagic_ prefix to avoid confusion
   const DEFAULT_COOKIE_MAX_AGE = 24 * 60 * 60 * 1000; // Default cookie maxAge property, equal to 1 day
   const ONE_YEAR_IN_MS = 365 * 24 * 60 * 60 * 1000, ONE_DAY_IN_MS = 24 * 60 * 60 * 1000, ONE_HOUR_IN_MS = 60 * 60 * 1000;
+  const DEFAULT_MAX_QUESTION_COUNT = 5;
 
   // Global variables
   let isPopupOn = false;
@@ -22,6 +23,7 @@ function usersmagic() {
   let question;
   let answer;
   let language;
+  const path = location.href.replace(location.origin, '');
   let preferred_color = 'rgb(46, 197, 206)';
   const allowedLanguageValues = ['en', 'tr'];
   const defaultContentText = {
@@ -67,21 +69,26 @@ function usersmagic() {
 
   // Check the domain, call functions in necessary order
   start = function() {
-    if (window.location.hostname == 'localhost') // Not work on localhost
-      return;
+    // if (window.location.hostname == 'localhost') // Not work on localhost
+    //   return;
 
-    if (getCookie('forceEnd')) // Use forceEnd to stop all process on this client for 1h
-      return;
+    // if (getCookie('forceEnd')) // Use forceEnd to stop all process on this client for 1h
+    //   return;
 
-    const nextActionTime = getCookie('nextActionTime');
+    // const nextActionTime = getCookie('nextActionTime');
 
-    if (nextActionTime && nextActionTime > (new Date).getTime())
-      return;
+    // if (nextActionTime && nextActionTime > (new Date).getTime())
+    //   return;
 
-    getLanguage(res => { // Check if the domain is verified with a TXT record
+    getData(res => { // Check if the domain is verified with a TXT record
       if (!res) return;
 
       document.addEventListener('click', event => {
+        if (event.target.classList.contains('usersmagic-list-input-each-choice')) {
+          answer = event.target.innerHTML;
+          event.target.parentNode.parentNode.childNodes[0].value = event.target.innerHTML;
+        }
+
         if (event.target.classList.contains('usersmagic-each-choice') || event.target.classList.contains('usersmagic-choice-text')) {
           const target = event.target.classList.contains('usersmagic-choice-text') ? event.target.parentNode : event.target;
       
@@ -129,8 +136,13 @@ function usersmagic() {
       });
 
       document.addEventListener('focusin', event => {
+        if (event.target.classList.contains('usersmagic-input')) {
+          event.target.style.borderColor = preferred_color;
+        }
+
         if (event.target.classList.contains('usersmagic-list-input')) {
           event.target.parentNode.classList.add('usersmagic-list-input-wrapper-focused');
+          event.target.parentNode.style.borderColor = preferred_color;
           event.target.parentNode.style.overflow = 'visible';
           event.target.parentNode.style.borderBottom = 'none';
           event.target.parentNode.style.borderBottomLeftRadius = '0px';
@@ -139,14 +151,19 @@ function usersmagic() {
       });
 
       document.addEventListener('focusout', event => {
+        if (event.target.classList.contains('usersmagic-input')) {
+          event.target.style.borderColor = 'rgb(134, 146, 166)';
+        }
+
         if (event.target.classList.contains('usersmagic-list-input')) {
           setTimeout(() => {
             event.target.parentNode.classList.remove('usersmagic-list-input-wrapper-focused');
+            event.target.parentNode.style.borderColor = 'rgb(134, 146, 166)';
             event.target.parentNode.style.overflow = 'hidden';
             event.target.parentNode.style.borderBottom = '1px solid rgb(134, 146, 166)';
             event.target.parentNode.style.borderBottomLeftRadius = '10px';
             event.target.parentNode.style.borderBottomRightRadius = '10px';
-          }, 100);
+          }, 200);
         }
       });
 
@@ -197,30 +214,61 @@ function usersmagic() {
   }
 
   // Check if the domain is valid for Usersmagic and get preferred language of Company
-  getLanguage = function(callback) {
-    serverRequest('/company_data', 'GET', {}, res => {
-      if (res.error || !res.success || !res.language || !allowedLanguageValues.includes(res.language))
+  getData = function(callback) {
+    serverRequest('/data', 'GET', {}, res => {
+      if (res.error || !res.success || !res.company)
         return callback(false);
 
-      language = res.language;
-      preferred_color = res.preferred_color;
+      const company = res.company;
 
-      const path = location.href.replace(location.origin, '')
-      const integration_routes = res.integration_routes;
+      language = company.preferred_language;
+      preferred_color = company.preferred_color;
+
+      const integration_paths = company.integration_paths;
         
-      if (!integration_routes.find(each => path.includes(each.route)))
+      if (!integration_paths.find(each => path.includes(each.path)))
         return callback(false);
 
       return callback(true);
     });
   }
 
+  // Get email of the user, either from cookie or input
+  getEmail = function(callback) {
+    email = getCookie('email');
+
+    validateEmail(email, err => {
+      if (!err) {
+        createContent({
+          type: 'start',
+        }, (err, res) => callback(err));
+      } else {
+        createContent({
+          type: 'email'
+        }, err => callback(err));
+      }
+    });
+  }
+
+  // Validate the email with usersmagic servers to validate
+  validateEmail = function(email, callback) {
+    if (!email || !email.length)
+      return callback('bad_request');
+
+    serverRequest(`/person?email=${email}`, 'GET', {}, res => {
+      if (res.success)
+        return callback(null);
+
+      return callback(res.error || true);
+    });
+  }
+
   // Get questions and ask them to user on by one
   askQuestion = function(count, callback) {
-    if (count == 5)
+    if (count == DEFAULT_MAX_QUESTION_COUNT)
       return callback(null);
 
-    serverRequest('/question?email=' + email, 'GET', {}, res => {
+    serverRequest(`/question?email=${email}&path=${path}`, 'GET', {}, res => {
       if (!res.success) return callback(res.error || 'unknown_error');
       if (!res.question) return callback(null);
 
@@ -288,23 +336,6 @@ function usersmagic() {
     }
   }
 
-  // Get email of the user, either from cookie or input
-  getEmail = function(callback) {
-    email = getCookie('email');
-
-    validateEmail(email, err => {
-      if (!err) {
-        createContent({
-          type: 'start',
-        }, (err, res) => callback(err));
-      } else {
-        createContent({
-          type: 'email'
-        }, err => callback(err));
-      }
-    });
-  }
-
   // Create each choice, append it under wrapper
   createChoice = function(choice, wrapper) {
     const eachChoiceWrapper = document.createElement('div');
@@ -352,6 +383,7 @@ function usersmagic() {
         usersmagicButton.classList.add('usersmagic-button');
         usersmagicButton.id = 'usersmagic-start-questions-button';
         usersmagicButton.innerHTML = defaultContentText[language].nextButtonText;
+        usersmagicButton.style.backgroundColor = preferred_color;
         contentInnerWrapper.appendChild(usersmagicButton);
 
         const usersmagicCheckBoxWrapper = document.createElement('div');
@@ -410,8 +442,10 @@ function usersmagic() {
           if (event.target.classList.contains('usersmagic-check-box-wrapper') || (event.target.parentNode && event.target.parentNode.classList.contains('usersmagic-check-box-wrapper')) || (event.target.parentNode && event.target.parentNode.parentNode && event.target.parentNode.parentNode.classList.contains('usersmagic-check-box-wrapper'))) {
             if (isCheckboxChecked) {
               usersmagicCheckBox.style.backgroundColor = 'rgb(254, 254, 254)';
+              usersmagicCheckBox.style.border = '1px solid rgb(167, 167, 168)';
             } else {
-              usersmagicCheckBox.style.backgroundColor = 'rgb(46, 197, 206)';
+              usersmagicCheckBox.style.backgroundColor = preferred_color;
+              usersmagicCheckBox.style.border = 'none';
             }
             
             isCheckboxChecked = !isCheckboxChecked;
@@ -443,6 +477,7 @@ function usersmagic() {
         usersmagicButton.classList.add('usersmagic-button');
         usersmagicButton.id = 'usersmagic-approve-email-button';
         usersmagicButton.innerHTML = defaultContentText[language].approveButtonText;
+        usersmagicButton.style.backgroundColor = preferred_color;
         contentInnerWrapper.appendChild(usersmagicButton);
 
         document.addEventListener('click', function listenForEmailInput(event) {
@@ -454,7 +489,7 @@ function usersmagic() {
 
             const emailData = document.getElementById('usersmagic-email-input').value.trim();
 
-            validateEmail(emailData, err => {
+            validateEmail(emailData, err => {
               if (err) {
                 return callback(err);
               } else {
@@ -551,6 +586,7 @@ function usersmagic() {
         usersmagicButton.classList.add('usersmagic-button');
         usersmagicButton.id = 'next-question-button';
         usersmagicButton.innerHTML = defaultContentText[language].nextButtonText;
+        usersmagicButton.style.backgroundColor = preferred_color;
         contentInnerWrapper.appendChild(usersmagicButton);
 
         document.addEventListener('click', function listenForQuestionEvents(event) {
@@ -586,6 +622,7 @@ function usersmagic() {
         usersmagicButton.classList.add('usersmagic-button');
         usersmagicButton.id = 'usersmagic-end-questions-button';
         usersmagicButton.innerHTML = 'Next';
+        usersmagicButton.style.backgroundColor = preferred_color;
         contentInnerWrapper.appendChild(usersmagicButton);
 
         document.addEventListener('click', function listenForEndButton(event) {
@@ -605,6 +642,7 @@ function usersmagic() {
       const openButton = document.createElement('div');
       openButton.classList.add('usersmagic');
       openButton.classList.add('usersmagic-open-button');
+      openButton.style.backgroundColor = preferred_color;
 
       const openButtonSpan = document.createElement('span');
       openButtonSpan.classList.add('usersmagic');
@@ -647,7 +685,12 @@ function usersmagic() {
 
       const footerWrapper = document.createElement('div');
       footerWrapper.classList.add('usersmagic');
-      footerWrapper.classList.add('usersmagic-footer-wrapper')
+      footerWrapper.classList.add('usersmagic-footer-wrapper');
+
+      const footerA = document.createElement('a');
+      footerA.classList.add('a');
+      footerA.href = 'https://usersmagic.com';
+      footerA.target = '_blank';
       
       const footerSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       footerSvg.classList.add('usersmagic');
@@ -662,7 +705,8 @@ function usersmagic() {
       path.setAttributeNS(null, 'fill', '#748297');
       footerSvg.appendChild(path);
       
-      footerWrapper.appendChild(footerSvg);
+      footerA.appendChild(footerSvg);
+      footerWrapper.appendChild(footerA);
       
       contentOuterWrapper.appendChild(footerWrapper);
 
@@ -673,19 +717,6 @@ function usersmagic() {
       isPopupOn = true;
       createContent(data, err => callback(err));
     }
-  }
-
-  // Validate the email with usersmagic servers to validate
-  validateEmail = function(email, callback) {
-    if (!email || !email.length)
-      return callback('bad_request');
-
-    serverRequest(`/person?email=${email}`, 'GET', {}, res => {
-      if (res.success)
-        return callback(null);
-
-      return callback(res.error || true);
-    });
   }
 
   // Close usersmagic content wrapper. Stop process for a day
@@ -766,5 +797,5 @@ function usersmagic() {
 
   setTimeout(() => {
     start();
-  }, 2000);
+  }, 000);
 }

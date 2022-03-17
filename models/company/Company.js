@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
+const getCompany = require('./functions/getCompany');
+
 const MAX_DATABASE_ARRAY_FIELD_LENGTH = 1e2;
 const MAX_DATABASE_TEXT_FIELD_LENGTH = 1e4;
 const PREFERRED_LANGUAGE_LENGTH = 2;
@@ -33,17 +35,6 @@ const CompanySchema = new Schema({
     maxlength: MAX_DATABASE_TEXT_FIELD_LENGTH,
     default: null
   },
-  integration_routes: {
-    type: Array,
-    default: [],
-    maxlength: MAX_DATABASE_ARRAY_FIELD_LENGTH
-    // {
-    //   _id: mongoose.Types.ObjectId(),
-    //   name: String,
-    //   route: String,
-    //   is_active: Boolean
-    // }
-  },
   preferred_language: {
     type: String,
     default: 'en',
@@ -64,6 +55,40 @@ CompanySchema.statics.findCompanyById = function (id, callback) {
     return callback('bad_request');
 
   Company.findById(mongoose.Types.ObjectId(id.toString()), (err, company) => {
+    if (err) return callback('database_error');
+    if (!company) return callback('document_not_found');
+
+    return callback(null, company);
+  });
+};
+
+CompanySchema.statics.findCompanyByIdAndFormat = function (id, callback) {
+  const Company = this;
+
+  if (!id || !validator.isMongoId(id.toString()))
+    return callback('bad_request');
+
+  Company.findById(mongoose.Types.ObjectId(id.toString()), (err, company) => {
+    if (err) return callback('database_error');
+    if (!company) return callback('document_not_found');
+
+    getCompany(company, (err, company) => {
+      if (err) return callback(err);
+      
+      return callback(null, company);
+    });
+  });
+};
+
+CompanySchema.statics.findCompanyByDomain = function (domain, callback) {
+  const Company = this;
+
+  if (!domain || typeof domain != 'string')
+    return callback('bad_request');
+
+  Company.findOne({
+    domain: domain.trim()
+  }, (err, company) => {
     if (err) return callback('database_error');
     if (!company) return callback('document_not_found');
 

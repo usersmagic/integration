@@ -1,4 +1,4 @@
-const Person = require('../../../models/person/Person');
+const Person = require('../../models/person/Person');
 
 module.exports = (req, res) => {
   Person.findOrCreatePersonByEmail(req.query.email, err => {

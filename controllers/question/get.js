@@ -1,4 +1,4 @@
-const Person = require('../../../models/person/Person');
+const Person = require('../../models/person/Person');
 
 module.exports = (req, res) => {
   Person.findOrCreatePersonByEmail(req.query.email, (err, person) => {
@@ -9,6 +9,7 @@ module.exports = (req, res) => {
 
     Person.getNextQuestionForPerson({
       last_question: req.query.last_question && !isNaN(parseInt(req.query.last_question)) ? parseInt(req.query.last_question) : 0,
+      path: req.query.path,
       person_id: person._id,
       company_id: req.session.company_id
     }, (err, question) => {

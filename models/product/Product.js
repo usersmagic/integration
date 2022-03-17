@@ -5,6 +5,8 @@ const Schema = mongoose.Schema;
 
 const MAX_DATABASE_SHORT_TEXT_FIELD_LENGTH = 1e2;
 const MAX_DATABASE_TEXT_FIELD_LENGTH = 1e4;
+const MAX_DATABASE_NUMERIC_FIELD_LENGTH = 1e6;
+const MAX_PRODUCT_LIMIT_BY_COMPANY = 10;
 
 const ProductSchema = new Schema({
   company_id: {
@@ -16,7 +18,7 @@ const ProductSchema = new Schema({
     required: true,
     maxlength: MAX_DATABASE_SHORT_TEXT_FIELD_LENGTH
   },
-  link: {
+  path: {
     type: String,
     required: true,
     maxlength: MAX_DATABASE_TEXT_FIELD_LENGTH

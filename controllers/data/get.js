@@ -1,19 +1,17 @@
-const Person = require('../../../models/person/Person');
+const Company = require('../../models/company/Company');
 
 module.exports = (req, res) => {
-  req.body.company_id = req.session.user.company._id;
-
-  Person.getNextAdForPerson(req.body, (err, ad) => {
+  Company.findCompanyByIdAndFormat(req.session.company_id, (err, company) => {
     if (err) {
       res.write(JSON.stringify({ error: err, success: false }));
       return res.end();
     }
 
     res.write(JSON.stringify({
-      ad,
-      success: true
+      success: true,
+      company
     }));
     
     return res.end();
-  })
+  });
 }

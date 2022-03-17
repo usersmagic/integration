@@ -37,7 +37,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgb(5, 0, 161);
   box-shadow: 0px 0px 38.72px rgba(0, 0, 0, 0.25);
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -94,20 +93,19 @@
 .usersmagic-button {
   margin-top: 20px;
   align-self: center;
-  background-color: rgb(46, 197, 206);
   font-weight: 800;
   color: rgb(254, 254, 254);
   font-size: 14px;
   padding: 0px 20px;
   height: 40px;
   border-radius: 5px;
-  box-shadow: 0 0 5px rgba(46, 197, 206, 0.2);
+  box-shadow: 0 0 5px rgba(98, 98, 103, 0.2);
   cursor: pointer;
   display: flex;
   align-items: center;
 }
 .usersmagic-button:hover {
-  box-shadow: 0 0 5px rgba(46, 197, 206, 0.4);
+  box-shadow: 0 0 5px rgba(98, 98, 103, 0.4);
 }
 .usersmagic-input {
   padding: 10px 15px;
@@ -123,7 +121,6 @@
 }
 .usersmagic-input:focus {
   box-shadow: 0px 4px 10px 3px rgba(0, 0, 0, 0.05);
-  border-color: rgb(140, 212, 224);
 }
 .usersmagic-input::placeholder {
   color: rgb(167, 167, 168);
@@ -143,7 +140,6 @@
 }
 .usersmagic-list-input-wrapper-focused {
   box-shadow: 0px 4px 10px 3px rgba(0, 0, 0, 0.05);
-  border-color: rgb(140, 212, 224);
 }
 .usersmagic-list-input {
   padding: 10px 15px;
@@ -188,7 +184,7 @@
   cursor: pointer;
 }
 .usersmagic-list-input-each-choice:hover {
-  background-color: rgba(140, 212, 224, 0.3);
+  background-color: rgba(242, 242, 242, 0.6);
 }
 
 .usersmagic-header-wrapper {
@@ -260,7 +256,6 @@
 }
 .usersmagic-check-box-wrapper span a {
   font-weight: 600;
-  color: rgb(46, 197, 206);
   cursor: pointer;
   text-decoration: underline;
 }

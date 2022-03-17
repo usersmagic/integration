@@ -31,7 +31,10 @@ if (cluster.isMaster) {
   const PORT = process.env.PORT || 3000;
   const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/usersmagic';
 
-  const indexRouteController = require('./routes/indexRoute');
+  const answerRouteController = require('./routes/answerRoute');
+  const dataRouteController = require('./routes/dataRoute');
+  const personRouteController = require('./routes/personRoute');
+  const questionRouteController = require('./routes/questionRoute');
 
   mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
@@ -59,14 +62,17 @@ if (cluster.isMaster) {
     res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.append('Access-Control-Allow-Headers', 'Content-Type');
     
-    if (!req.query || typeof req.query != 'object')
+    if (!req.query || typeof req.query != 'object')
       req.query = {};
     if (!req.body || typeof req.body != 'object')
       req.body = {};
     next();
   });
 
-  app.use('/', indexRouteController);
+  app.use('/answer', answerRouteController);
+  app.use('/data', dataRouteController);
+  app.use('/person', personRouteController);
+  app.use('/question', questionRouteController);
 
   server.listen(PORT, () => {
     console.log(`Server is on port ${PORT} as Worker ${cluster.worker.id} running @ process ${cluster.worker.process.pid}`);

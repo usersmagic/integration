@@ -4,12 +4,7 @@ const validator = require('validator');
 
 const getTemplate = require('./functions/getTemplate');
 
-const type_values = ['demographics', 'brand', 'product']; // For now, all templates will be demographics
-const subtype_values = ['yes_no', 'single', 'multiple', 'list', 'time', 'scale', 'number'];
-const language_values = ['en', 'tr'];
-
 const MAX_DATABASE_TEXT_FIELD_LENGTH = 1e4;
-const MAX_DATABASE_ARRAY_FIELD_LENGTH = 1e3;
 const DEFAULT_LANGUAGE_VALUE = 'en';
 
 const Schema = mongoose.Schema;
@@ -26,11 +21,6 @@ const TemplateSchema = new Schema({
   order_number: {
     type: Number,
     required: true,
-    index: true
-  },
-  is_default_template: {
-    type: Boolean,
-    default: false,
     index: true
   },
   language: {
@@ -88,6 +78,24 @@ TemplateSchema.statics.findTemplateById = function (id, callback) {
     if (!template) return callback('document_not_found');
 
     return callback(null, template);
+  });
+};
+
+TemplateSchema.statics.findTemplateByIdAndFormat = function (id, callback) {
+  const Template = this;
+
+  if (!id || !validator.isMongoId(id.toString()))
+    return callback('bad_request');
+
+  Template.findById(mongoose.Types.ObjectId(id.toString()), (err, template) => {
+    if (err) return callback('database_error');
+    if (!template) return callback('document_not_found');
+
+    getTemplate(template, (err, template) => {
+      if (err) return callback(err);
+
+      return callback(null, template);
+    });
   });
 };
 

@@ -2,11 +2,12 @@ const async = require('async');
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-const getWeek = require('../../utils/getWeek');
+const getWeek = require('../../middleware/getWeek');
 
 const Ad = require('../ad/Ad');
 const Answer = require('../answer/Answer');
 const Company = require('../company/Company');
+const IntegrationPath = require('../integration_path/IntegrationPath');
 const Product = require('../product/Product');
 const Template = require('../template/Template');
 const Question = require('../question/Question');
@@ -42,7 +43,7 @@ PersonSchema.statics.findPersonById = function (id, callback) {
 PersonSchema.statics.createPerson = function (data, callback) {
   const Person = this;
 
-  if (!data || !data.email || !validator.isEmail(data.email.toString()))
+  if (!data || !data.email || !validator.isEmail(data.email.toString()))
     return callback('bad_request');
 
   const newPersonData = {
@@ -293,8 +294,12 @@ PersonSchema.statics.getNextQuestionForPerson = function (data, callback) {
 
   if (!data || typeof data != 'object')
     return callback('bad_request');
+  
+  if (!data.path || typeof data.path != 'string')
+    return callback('bad_request');
 
   const last_question_number = data.last_question && Number.isInteger(data.last_question) ? data.last_question : -1;
+  const path = data.path;
 
   Person.findPersonById(data.person_id, (err, person) => {
     if (err) return callback(err);
@@ -315,27 +320,44 @@ PersonSchema.statics.getNextQuestionForPerson = function (data, callback) {
           (time, next) => {
             const question = questions[time];
 
-            Answer.findOneAnswer({
-              template_id: question.template_id,
-              person_id: person._id
-            }, err => {
-              if (err && err != 'document_not_found') return next(err);
+            async.timesSeries(
+              question.integration_path_id_list.length,
+              (time, next) => IntegrationPath.findIntegrationPathById(question.integration_path_id_list[time], (err, integration_path) => {
+                if (err) return next(err);
+                if (integration_path.path.includes(path.trim()))
+                  return next('process_complete');
 
-              if (!err) {
-                Person.updatePersonAnswerGroupUsingCommonDatabase({
-                  company_id: company._id,
-                  question_id: question._id,
+                return next(null);
+              }),
+              err => {
+                if (err && err != 'process_complete')
+                  return next(err);
+                if (!err)
+                  return next(null);
+
+                Answer.findOneAnswer({
+                  template_id: question.template_id,
                   person_id: person._id
                 }, err => {
-                  if (err) return next(err);
-
-                  return next(null);
-                })
-              } else {
-                found_question = question;
-                return next('process_complete');
+                  if (err && err != 'document_not_found') return next(err);
+      
+                  if (!err) {
+                    Person.updatePersonAnswerGroupUsingCommonDatabase({
+                      company_id: company._id,
+                      question_id: question._id,
+                      person_id: person._id
+                    }, err => {
+                      if (err) return next(err);
+      
+                      return next(null);
+                    });
+                  } else {
+                    found_question = question;
+                    return next('process_complete');
+                  }
+                });  
               }
-            });
+            );
           },
           err => {
             if (err && err != 'process_complete')
@@ -343,42 +365,10 @@ PersonSchema.statics.getNextQuestionForPerson = function (data, callback) {
             if (!err)
               return callback(null);
 
-            Template.findTemplateById(found_question.template_id, (err, template) => {
+            Question.findQuestionByIdAndFormat(found_question._id, (err, question) => {
               if (err) return callback(err);
 
-              if (template.type != 'product')
-                return callback(null, {
-                  _id: found_question._id.toString(),
-                  timeout_duration_in_week: template.timeout_duration_in_week,
-                  order_number: template.order_number,
-                  name: template.name,
-                  text: template.text,
-                  type: template.type,
-                  subtype: template.subtype,
-                  choices: template.choices,
-                  min_value: template.min_value,
-                  max_value: template.max_value,
-                  labels: template.labels
-                });
-
-              Product.findProductById(found_question.product_id, (err, product) => {
-                if (err) return callback(err);
-
-                return callback(null, {
-                  _id: found_question._id.toString(),
-                  timeout_duration_in_week: template.timeout_duration_in_week,
-                  order_number: template.order_number,
-                  name: template.name.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
-                  text: template.text.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
-                  product_link: product.link,
-                  type: template.type,
-                  subtype: template.subtype,
-                  choices: template.choices,
-                  min_value: template.min_value,
-                  max_value: template.max_value,
-                  labels: template.labels
-                });
-              });
+              return callback(null, question);
             });
           }
         );
