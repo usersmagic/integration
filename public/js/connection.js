@@ -9,8 +9,8 @@ window.addEventListener('load', event => {
 
 function usersmagic() {
   // Constant variables
-  // const URL_PREFIX = 'https://integration.usersmagic.com'; // The url the requests will be made to
-  const URL_PREFIX = 'http://localhost:3000';
+  const URL_PREFIX = 'https://integration.usersmagic.com'; // The url the requests will be made to
+  // const URL_PREFIX = 'http://localhost:3000';
   const COOKIE_PREFIX = 'usersmagic_'; // All cookies start with usersmagic_ prefix to avoid confusion
   const DEFAULT_COOKIE_MAX_AGE = 24 * 60 * 60 * 1000; // Default cookie maxAge property, equal to 1 day
   const ONE_YEAR_IN_MS = 365 * 24 * 60 * 60 * 1000, ONE_DAY_IN_MS = 24 * 60 * 60 * 1000, ONE_HOUR_IN_MS = 60 * 60 * 1000;
@@ -69,16 +69,16 @@ function usersmagic() {
 
   // Check the domain, call functions in necessary order
   start = function() {
-    // if (window.location.hostname == 'localhost') // Not work on localhost
-    //   return;
+    if (window.location.hostname == 'localhost') // Not work on localhost
+      return;
 
-    // if (getCookie('forceEnd')) // Use forceEnd to stop all process on this client for 1h
-    //   return;
+    if (getCookie('forceEnd')) // Use forceEnd to stop all process on this client for 1h
+      return;
 
-    // const nextActionTime = getCookie('nextActionTime');
+    const nextActionTime = getCookie('nextActionTime');
 
-    // if (nextActionTime && nextActionTime > (new Date).getTime())
-    //   return;
+    if (nextActionTime && nextActionTime > (new Date).getTime())
+      return;
 
     getData(res => { // Check if the domain is verified with a TXT record
       if (!res) return;
