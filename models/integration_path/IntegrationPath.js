@@ -69,4 +69,26 @@ IntegrationPathSchema.statics.findIntegrationPathSortedByCompanyId = function (c
     .catch(err => callback('database_error'));
 };
 
+IntegrationPathSchema.statics.findIntegrationPathsByCompanyIdAndPath = function (data, callback) {
+  const IntegrationPath = this;
+
+  if (!data)
+    return callback('bad_request');
+
+  if (!data.company_id || !validator.isMongoId(data.company_id.toString()))
+    return callback('bad_request');
+
+  if (!data.path || typeof data.path != 'string')
+    return callback('bad_request');
+
+  IntegrationPath.find({
+    company_id: mongoose.Types.ObjectId(data.company_id.toString()),
+    path: {$regex: data.path.trim()}
+  }, (err, integration_paths) => {
+    if (err) return callback('database_error');
+    
+    return callback(null, integration_paths);
+  });
+};
+
 module.exports = mongoose.model('IntegrationPath', IntegrationPathSchema);

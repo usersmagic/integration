@@ -299,7 +299,6 @@ PersonSchema.statics.getNextQuestionForPerson = function (data, callback) {
     return callback('bad_request');
 
   const last_question_number = data.last_question && Number.isInteger(data.last_question) ? data.last_question : -1;
-  const path = data.path;
 
   Person.findPersonById(data.person_id, (err, person) => {
     if (err) return callback(err);
@@ -307,71 +306,61 @@ PersonSchema.statics.getNextQuestionForPerson = function (data, callback) {
     Company.findCompanyById(data.company_id, (err, company) => {
       if (err) return callback(err);
 
-      Question.findQuestionsByFiltersAndSorted({
-        company_id: company._id,
-        min_order_number: last_question_number,
-        is_active: true
-      }, (err, questions) => {
+      IntegrationPath.findIntegrationPathsByCompanyIdAndPath(data, (err, integration_paths) => {
         if (err) return callback(err);
-        let found_question = null;
+        if (!integration_paths || !integration_paths.length)
+          return callback(null);
 
-        async.timesSeries(
-          questions.length,
-          (time, next) => {
-            const question = questions[time];
-
-            async.timesSeries(
-              question.integration_path_id_list.length,
-              (time, next) => IntegrationPath.findIntegrationPathById(question.integration_path_id_list[time], (err, integration_path) => {
-                if (err) return next(err);
-                if (integration_path.path.includes(path.trim()))
+        Question.findQuestionsByFiltersAndSorted({
+          company_id: company._id,
+          min_order_number: last_question_number,
+          is_active: true,
+          integration_path_id_list: integration_paths.map(each => each._id.toString())
+        }, (err, questions) => {
+          if (err) return callback(err);
+          let found_question = null;
+  
+          async.timesSeries(
+            questions.length,
+            (time, next) => {
+              const question = questions[time];
+  
+              Answer.findOneAnswer({
+                template_id: question.template_id,
+                person_id: person._id
+              }, err => {
+                if (err && err != 'document_not_found') return next(err);
+    
+                if (!err) {
+                  Person.updatePersonAnswerGroupUsingCommonDatabase({
+                    company_id: company._id,
+                    question_id: question._id,
+                    person_id: person._id
+                  }, err => {
+                    if (err) return next(err);
+    
+                    return next(null);
+                  });
+                } else {
+                  found_question = question;
                   return next('process_complete');
-
-                return next(null);
-              }),
-              err => {
-                if (err && err != 'process_complete')
-                  return next(err);
-                if (!err)
-                  return next(null);
-
-                Answer.findOneAnswer({
-                  template_id: question.template_id,
-                  person_id: person._id
-                }, err => {
-                  if (err && err != 'document_not_found') return next(err);
-      
-                  if (!err) {
-                    Person.updatePersonAnswerGroupUsingCommonDatabase({
-                      company_id: company._id,
-                      question_id: question._id,
-                      person_id: person._id
-                    }, err => {
-                      if (err) return next(err);
-      
-                      return next(null);
-                    });
-                  } else {
-                    found_question = question;
-                    return next('process_complete');
-                  }
-                });  
-              }
-            );
-          },
-          err => {
-            if (err && err != 'process_complete')
-              return callback(err);
-            if (!err)
-              return callback(null);
-
-            Question.findQuestionByIdAndFormat(found_question._id, (err, question) => {
-              if (err) return callback(err);
-
-              return callback(null, question);
-            });
-          }
-        );
+                }
+              });
+            },
+            err => {
+              if (err && err != 'process_complete')
+                return callback(err);
+              if (!err)
+                return callback(null);
+  
+              Question.findQuestionByIdAndFormat(found_question._id, (err, question) => {
+                if (err) return callback(err);
+  
+                return callback(null, question);
+              });
+            }
+          );
+        });
       });
     });
   });

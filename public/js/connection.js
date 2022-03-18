@@ -797,5 +797,5 @@ function usersmagic() {
 
   setTimeout(() => {
     start();
-  }, 000);
+  }, 2000);
 }
