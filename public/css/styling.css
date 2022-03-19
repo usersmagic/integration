@@ -90,6 +90,10 @@
   line-height: 20px;
   margin-bottom: 5px;
 }
+.usersmagic-line {
+  display: flex;
+  align-items: center;
+}
 .usersmagic-button {
   margin-top: 20px;
   align-self: center;

@@ -14,12 +14,12 @@ function usersmagic() {
   const COOKIE_PREFIX = 'usersmagic_'; // All cookies start with usersmagic_ prefix to avoid confusion
   const DEFAULT_COOKIE_MAX_AGE = 24 * 60 * 60 * 1000; // Default cookie maxAge property, equal to 1 day
   const ONE_YEAR_IN_MS = 365 * 24 * 60 * 60 * 1000, ONE_DAY_IN_MS = 24 * 60 * 60 * 1000, ONE_HOUR_IN_MS = 60 * 60 * 1000;
-  const DEFAULT_MAX_QUESTION_COUNT = 5;
+  const DEFAULT_MAX_QUESTION_COUNT = 5; // Ask 5 questions max. at start
 
   // Global variables
   let isPopupOn = false;
   let contentClickerWrapper = null, contentOuterWrapper = null;
-  let email = null;
+  let email;
   let question;
   let answer;
   let language;
@@ -41,10 +41,14 @@ function usersmagic() {
       approveButtonText: 'Approve',
       yesChoice: 'Yes',
       noChoice: 'No',
-      endTitle: 'Thank you for answering our questions, see you later :)',
+      noQuestionFoundTitle: 'Unfortunately, we do not have any questions for you on this page yet. Thank you for your time. See you later :)',
+      noQuestionLeftTitle: 'You answered all the questions we need on this page. Thank you for your time. See you later :)',
+      wantToContinueTitle: 'Thank you for answering our questions. If you like, you may continue answering some more questions, or come back later to finish them.',
       searchAnswerPlaceholder: 'Type your answer to search',
       yourAnswerPlaceholder: 'Your answer',
-      closeButtonText: 'Close'
+      closeButtonText: 'Close',
+      laterButtonText: 'Continue Later',
+      continueQuestionsButtonText: 'See New Questions',
     },
     tr: {
       openButtonText: 'Seni tanıyalım !',
@@ -60,12 +64,16 @@ function usersmagic() {
       approveButtonText: 'Onayla',
       yesChoice: 'Evet',
       noChoice: 'Hayır',
-      endTitle: 'Sorularımıza cevap verdiğiniz için teşekkür ederiz, görüşmek üzere :)',
+      noQuestionFoundTitle: 'Ne yazık ki bu sayfada size soracak hiçbir sorumuz bulunmuyor. Zamanınızı ayırdığınız için teşekkür ederiz. Görüşmek üzere :)',
+      noQuestionLeftTitle: 'Bu sayfadaki bütün soruları cevapladınız. Zamanınızı ayırdığınız için teşekkür ederiz. Görüşmek üzere :)',
+      wantToContinueTitle: 'Sorularımızı cevapladığınız için teşekkür ederiz. İsterseniz sayfadaki diğer soruları cevaplamaya devam edebilir, veya soruları cevaplamak için daha sonra geri gelebilirsiniz.',
       searchAnswerPlaceholder: 'Listeden seçmek için cevabınızı yazın',
       yourAnswerPlaceholder: 'Cevabınız',
-      closeButtonText: 'Kapat'
+      closeButtonText: 'Kapat',
+      laterButtonText: 'Daha Sonra Devam Et',
+      continueQuestionsButtonText: 'Yeni Soruları Gör',
     }
-  }
+  };
 
   // Check the domain, call functions in necessary order
   start = function() {
@@ -83,131 +91,136 @@ function usersmagic() {
     getData(res => { // Check if the domain is verified with a TXT record
       if (!res) return;
 
-      document.addEventListener('click', event => {
-        if (event.target.classList.contains('usersmagic-list-input-each-choice')) {
-          answer = event.target.innerHTML;
-          event.target.parentNode.parentNode.childNodes[0].value = event.target.innerHTML;
-        }
+      checkQuestion(res => {
+        if (!res) return; // No question on this page
 
-        if (event.target.classList.contains('usersmagic-each-choice') || event.target.classList.contains('usersmagic-choice-text')) {
-          const target = event.target.classList.contains('usersmagic-choice-text') ? event.target.parentNode : event.target;
-      
-          if (question.subtype == 'multiple') {
-            const choice = target.childNodes[0].innerHTML;
-      
-            if (answer.includes(choice)) {
-              target.classList.remove('usersmagic-selected-choice');
-              answer = answer.filter(each => each != choice);
+        document.addEventListener('click', event => {
+          if (event.target.classList.contains('usersmagic-list-input-each-choice')) {
+            answer = event.target.innerHTML;
+            event.target.parentNode.parentNode.childNodes[0].value = event.target.innerHTML;
+          }
+  
+          if (event.target.classList.contains('usersmagic-each-choice') || event.target.classList.contains('usersmagic-choice-text')) {
+            const target = event.target.classList.contains('usersmagic-choice-text') ? event.target.parentNode : event.target;
+        
+            if (question.subtype == 'multiple') {
+              const choice = target.childNodes[0].innerHTML;
+        
+              if (answer.includes(choice)) {
+                target.classList.remove('usersmagic-selected-choice');
+                answer = answer.filter(each => each != choice);
+              } else {
+                target.classList.add('usersmagic-selected-choice');
+                answer.push(choice);
+              }
             } else {
+              if (document.querySelector('.usersmagic-selected-choice'))
+                document.querySelector('.usersmagic-selected-choice').classList.remove('usersmagic-selected-choice');
               target.classList.add('usersmagic-selected-choice');
-              answer.push(choice);
+              answer = question.subtype == 'yes_no' ? (target.childNodes[0].innerHTML == defaultContentText[language].yesChoice ? 'yes' : 'no') : target.childNodes[0].innerHTML;
             }
-          } else {
+          }
+  
+          if (event.target.classList.contains('usersmagic-each-scale-choice')) {
+            const target = event.target;
+            
+            answer = target.innerHTML;
+        
             if (document.querySelector('.usersmagic-selected-choice'))
               document.querySelector('.usersmagic-selected-choice').classList.remove('usersmagic-selected-choice');
             target.classList.add('usersmagic-selected-choice');
-            answer = question.subtype == 'yes_no' ? (target.childNodes[0].innerHTML == defaultContentText[language].yesChoice ? 'yes' : 'no') : target.childNodes[0].innerHTML;
           }
-        }
-
-        if (event.target.classList.contains('usersmagic-each-scale-choice')) {
-          const target = event.target;
-          
-          answer = target.innerHTML;
-      
-          if (document.querySelector('.usersmagic-selected-choice'))
-            document.querySelector('.usersmagic-selected-choice').classList.remove('usersmagic-selected-choice');
-          target.classList.add('usersmagic-selected-choice');
-        }
-
-        if (event.target.classList.contains('usersmagic-close-button') || event.target.parentNode.classList.contains('usersmagic-close-button')) {
-          document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(calc(100% - 30px))';
-        } else if (event.target.classList.contains('usersmagic')) {
-          document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(0px)';
-        } else if (isPopupOn) {
-          document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(calc(100% - 30px))';
-        }
-      });
-
-      document.addEventListener('input', event => {
-        if (event.target.id == 'usersmagic-answer-input') {
-          answer = event.target.value;
-        }
-      });
-
-      document.addEventListener('focusin', event => {
-        if (event.target.classList.contains('usersmagic-input')) {
-          event.target.style.borderColor = preferred_color;
-        }
-
-        if (event.target.classList.contains('usersmagic-list-input')) {
-          event.target.parentNode.classList.add('usersmagic-list-input-wrapper-focused');
-          event.target.parentNode.style.borderColor = preferred_color;
-          event.target.parentNode.style.overflow = 'visible';
-          event.target.parentNode.style.borderBottom = 'none';
-          event.target.parentNode.style.borderBottomLeftRadius = '0px';
-          event.target.parentNode.style.borderBottomRightRadius = '0px';
-        }
-      });
-
-      document.addEventListener('focusout', event => {
-        if (event.target.classList.contains('usersmagic-input')) {
-          event.target.style.borderColor = 'rgb(134, 146, 166)';
-        }
-
-        if (event.target.classList.contains('usersmagic-list-input')) {
-          setTimeout(() => {
-            event.target.parentNode.classList.remove('usersmagic-list-input-wrapper-focused');
-            event.target.parentNode.style.borderColor = 'rgb(134, 146, 166)';
-            event.target.parentNode.style.overflow = 'hidden';
-            event.target.parentNode.style.borderBottom = '1px solid rgb(134, 146, 166)';
-            event.target.parentNode.style.borderBottomLeftRadius = '10px';
-            event.target.parentNode.style.borderBottomRightRadius = '10px';
-          }, 200);
-        }
-      });
-
-      document.addEventListener('input', event => {
-        if (event.target.classList.contains('usersmagic-list-input')) {
-          const choicesWrapper = event.target.parentNode.childNodes[1];
-          const text = event.target.value.toLocaleLowerCase().trim();
-          const nodes = choicesWrapper.childNodes;
-          const newNodes = [];
-
-          for (let i = 0; i < nodes.length; i++)
-            newNodes.push(nodes[i].cloneNode(true));
-
-          newNodes.forEach(each => {
-            if (each.innerHTML.toLocaleLowerCase().indexOf(text) > -1)
-              each.style.display = 'flex';
-            else 
-              each.style.display = 'none';
-          });
-
-          choicesWrapper.innerHTML = '';
-
-          newNodes.sort((x, y) => {
-            if (x.innerHTML.toLocaleLowerCase().indexOf(text) < y.innerHTML.toLocaleLowerCase().indexOf(text))
-              return -1;
-            else if (x.innerHTML.toLocaleLowerCase().indexOf(text) > y.innerHTML.toLocaleLowerCase().indexOf(text))
-              return 1;
-            else
-              return 0;
-          });
-
-          newNodes.forEach(node => {
-            choicesWrapper.appendChild(node);
-          });
-        }
-      });
-
-      getEmail(err => { // Get the email of user, either from cookie or input
-        if (err) return throwError(err);
   
-        askQuestion(0, err => { // Ask a question. Recursive function.
+          if (event.target.classList.contains('usersmagic-close-button') || event.target.parentNode.classList.contains('usersmagic-close-button')) {
+            document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(calc(100% - 30px))';
+          } else if (event.target.classList.contains('usersmagic')) {
+            document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(0px)';
+          } else if (isPopupOn) {
+            document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(calc(100% - 30px))';
+          }
+        });
+  
+        document.addEventListener('input', event => {
+          if (event.target.id == 'usersmagic-answer-input') {
+            answer = event.target.value;
+          }
+        });
+  
+        document.addEventListener('focusin', event => {
+          if (event.target.classList.contains('usersmagic-input')) {
+            event.target.style.borderColor = preferred_color;
+          }
+  
+          if (event.target.classList.contains('usersmagic-list-input')) {
+            event.target.parentNode.classList.add('usersmagic-list-input-wrapper-focused');
+            event.target.parentNode.style.borderColor = preferred_color;
+            event.target.parentNode.style.overflow = 'visible';
+            event.target.parentNode.style.borderBottom = 'none';
+            event.target.parentNode.style.borderBottomLeftRadius = '0px';
+            event.target.parentNode.style.borderBottomRightRadius = '0px';
+          }
+        });
+  
+        document.addEventListener('focusout', event => {
+          if (event.target.classList.contains('usersmagic-input')) {
+            event.target.style.borderColor = 'rgb(134, 146, 166)';
+          }
+  
+          if (event.target.classList.contains('usersmagic-list-input')) {
+            setTimeout(() => {
+              event.target.parentNode.classList.remove('usersmagic-list-input-wrapper-focused');
+              event.target.parentNode.style.borderColor = 'rgb(134, 146, 166)';
+              event.target.parentNode.style.overflow = 'hidden';
+              event.target.parentNode.style.borderBottom = '1px solid rgb(134, 146, 166)';
+              event.target.parentNode.style.borderBottomLeftRadius = '10px';
+              event.target.parentNode.style.borderBottomRightRadius = '10px';
+            }, 200);
+          }
+        });
+  
+        document.addEventListener('input', event => {
+          if (event.target.classList.contains('usersmagic-list-input')) {
+            const choicesWrapper = event.target.parentNode.childNodes[1];
+            const text = event.target.value.toLocaleLowerCase().trim();
+            const nodes = choicesWrapper.childNodes;
+            const newNodes = [];
+  
+            for (let i = 0; i < nodes.length; i++)
+              newNodes.push(nodes[i].cloneNode(true));
+  
+            newNodes.forEach(each => {
+              if (each.innerHTML.toLocaleLowerCase().indexOf(text) > -1)
+                each.style.display = 'flex';
+              else 
+                each.style.display = 'none';
+            });
+  
+            choicesWrapper.innerHTML = '';
+  
+            newNodes.sort((x, y) => {
+              if (x.innerHTML.toLocaleLowerCase().indexOf(text) < y.innerHTML.toLocaleLowerCase().indexOf(text))
+                return -1;
+              else if (x.innerHTML.toLocaleLowerCase().indexOf(text) > y.innerHTML.toLocaleLowerCase().indexOf(text))
+                return 1;
+              else
+                return 0;
+            });
+  
+            newNodes.forEach(node => {
+              choicesWrapper.appendChild(node);
+            });
+          }
+        });
+  
+        getEmail((err, res) => { // Get the email of user, either from cookie or input
           if (err) return throwError(err);
-
-          closeContent();
+          if (!res) return; // Do nothing, no question yet
+    
+          askQuestion(0, (err, count) => { // Ask a question, recursive function
+            if (err) return throwError(err);
+  
+            endContent(count);
+          });
         });
       });
     });
@@ -239,13 +252,32 @@ function usersmagic() {
 
     validateEmail(email, err => {
       if (!err) {
-        createContent({
-          type: 'start',
-        }, (err, res) => callback(err));
+        checkQuestion(res => {
+          if (!res)
+            return callback(null, false);
+
+          createContent({
+            type: 'start',
+          }, err => {
+            if (err) return callback(err);
+
+            return callback(null, true);
+          });
+        });
       } else {
         createContent({
-          type: 'email'
-        }, err => callback(err));
+          type: 'start',
+        }, err => {
+          if (err) return callback(err);
+
+          createContent({
+            type: 'email'
+          }, err => {
+            if (err) return callback(err);
+          
+            return callback(null, true);
+          });
+        });
       }
     });
   }
@@ -263,14 +295,24 @@ function usersmagic() {
     });
   }
 
+  // Check if the current user can access a question right now
+  checkQuestion = function(callback) {
+    serverRequest(`/question/check?path=${path}${(email ? ('&email=' + email) : '')}`, 'GET', {}, res => {
+      if (!res.success)
+        return callback(false);
+
+      return callback(res.result);
+    })
+  }
+
   // Get questions and ask them to user on by one
   askQuestion = function(count, callback) {
     if (count == DEFAULT_MAX_QUESTION_COUNT)
-      return callback(null);
+      return callback(null, count);
 
     serverRequest(`/question?email=${email}&path=${path}`, 'GET', {}, res => {
       if (!res.success) return callback(res.error || 'unknown_error');
-      if (!res.question) return callback(null);
+      if (!res.question) return callback(null, count);
 
       createContent({
         type: 'question',
@@ -278,7 +320,11 @@ function usersmagic() {
       }, err => {
         if (err) return callback(err);
 
-        askQuestion(count + 1, err => callback(err));
+        askQuestion(count + 1, (err, count) => {
+          if (err) return callback(err);
+
+          return callback(null, count);
+        });
       });
     });
   }
@@ -610,25 +656,89 @@ function usersmagic() {
             });
           }
         });
-      } else if (data.type == 'end') {
+      } else if (data.type == 'no_question_found') {
         const usersmagicTitle = document.createElement('span');
         usersmagicTitle.classList.add('usersmagic');
         usersmagicTitle.classList.add('usersmagic-title');
-        usersmagicTitle.innerHTML = defaultContentText[language].endTitle;
+        usersmagicTitle.innerHTML = defaultContentText[language].noQuestionFoundTitle;
         contentInnerWrapper.appendChild(usersmagicTitle);
 
         const usersmagicButton = document.createElement('span');
         usersmagicButton.classList.add('usersmagic');
         usersmagicButton.classList.add('usersmagic-button');
         usersmagicButton.id = 'usersmagic-end-questions-button';
-        usersmagicButton.innerHTML = 'Next';
+        usersmagicButton.innerHTML = defaultContentText[language].closeButtonText;
         usersmagicButton.style.backgroundColor = preferred_color;
         contentInnerWrapper.appendChild(usersmagicButton);
 
-        document.addEventListener('click', function listenForEndButton(event) {
+        document.addEventListener('click', event => {
           if (event.target.id == 'usersmagic-end-questions-button') {
-            document.removeEventListener('click', listenForEndButton);
-            callback(null);
+            document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(calc(100% - 30px))';
+          }
+        });
+      } else if (data.type == 'no_question_left') {
+        const usersmagicTitle = document.createElement('span');
+        usersmagicTitle.classList.add('usersmagic');
+        usersmagicTitle.classList.add('usersmagic-title');
+        usersmagicTitle.innerHTML = defaultContentText[language].noQuestionLeftTitle;
+        contentInnerWrapper.appendChild(usersmagicTitle);
+
+        const usersmagicButton = document.createElement('span');
+        usersmagicButton.classList.add('usersmagic');
+        usersmagicButton.classList.add('usersmagic-button');
+        usersmagicButton.id = 'usersmagic-end-questions-button';
+        usersmagicButton.innerHTML = defaultContentText[language].closeButtonText;
+        usersmagicButton.style.backgroundColor = preferred_color;
+        contentInnerWrapper.appendChild(usersmagicButton);
+
+        document.addEventListener('click', event => {
+          if (event.target.id == 'usersmagic-end-questions-button') {
+            document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(calc(100% - 30px))';
+          }
+        });
+      } else if (data.type == 'max_question_count_reached') {
+        const usersmagicTitle = document.createElement('span');
+        usersmagicTitle.classList.add('usersmagic');
+        usersmagicTitle.classList.add('usersmagic-title');
+        usersmagicTitle.innerHTML = defaultContentText[language].wantToContinueTitle;
+        contentInnerWrapper.appendChild(usersmagicTitle);
+
+        const usersmagicLine = document.createElement('div');
+        usersmagicLine.classList.add('usersmagic');
+        usersmagicLine.classList.add('usersmagic-line');
+
+        const continueLaterButton = document.createElement('span');
+        continueLaterButton.classList.add('usersmagic');
+        continueLaterButton.classList.add('usersmagic-button');
+        continueLaterButton.id = 'usersmagic-continue-later-button';
+        continueLaterButton.innerHTML = defaultContentText[language].laterButtonText;
+        continueLaterButton.style.border = `1px solid ${preferred_color}`;
+        continueLaterButton.style.color = preferred_color;
+        continueLaterButton.style.marginRight = '5px';
+        usersmagicLine.appendChild(continueLaterButton);
+
+        const usersmagicButton = document.createElement('span');
+        usersmagicButton.classList.add('usersmagic');
+        usersmagicButton.classList.add('usersmagic-button');
+        usersmagicButton.id = 'usersmagic-continue-questions-button';
+        usersmagicButton.innerHTML = defaultContentText[language].continueQuestionsButtonText;
+        usersmagicButton.style.backgroundColor = preferred_color;
+        usersmagicButton.style.marginLeft = '5px';
+        usersmagicLine.appendChild(usersmagicButton);
+
+        contentInnerWrapper.appendChild(usersmagicLine);
+
+        document.addEventListener('click', event => {
+          if (event.target.id == 'usersmagic-continue-later-button') {
+            document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(calc(100% - 30px))';
+          }
+
+          if (event.target.id == 'usersmagic-continue-questions-button') {
+            askQuestion(DEFAULT_MAX_QUESTION_COUNT+1, (err, count) => { // Ask a question, recursive function
+              if (err) return throwError(err);
+    
+              endContent(count);
+            });
           }
         });
       } else {
@@ -720,11 +830,44 @@ function usersmagic() {
   }
 
   // Close usersmagic content wrapper. Stop process for a day
-  closeContent = function() {
-    isPopupOn = false;
-    contentOuterWrapper.remove();
-    contentOuterWrapper = null;
+  endContent = function(count) {
     setCookie('nextActionTime', (new Date).getTime() + ONE_DAY_IN_MS, ONE_DAY_IN_MS);
+
+    if (count == 0)
+      createContent({
+        type: 'no_question_found',
+      }, err => {
+        if (err) return throwError(err);
+
+        return;
+      });
+    else if (count == DEFAULT_MAX_QUESTION_COUNT)
+      checkQuestion(res => {
+        if (res)
+          createContent({
+            type: 'max_question_count_reached',
+          }, err => {
+            if (err) return throwError(err);
+    
+            return;
+          });
+        else
+          createContent({
+            type: 'no_question_left',
+          }, err => {
+            if (err) return throwError(err);
+    
+            return;
+          });
+      });
+    else
+      createContent({
+        type: 'no_question_left',
+      }, err => {
+        if (err) return throwError(err);
+
+        return;
+      });
   }
 
   // Throw an error on the console. Stop the process for an hour

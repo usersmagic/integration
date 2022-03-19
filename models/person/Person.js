@@ -366,6 +366,100 @@ PersonSchema.statics.getNextQuestionForPerson = function (data, callback) {
   });
 };
 
+PersonSchema.statics.checkNextQuestionExists = function (data, callback) {
+  const Person = this;
+
+  if (!data || typeof data != 'object')
+    return callback('bad_request');
+  
+  if (!data.path || typeof data.path != 'string')
+    return callback('bad_request');
+
+  if (!data.person_id) {
+    Company.findCompanyById(data.company_id, (err, company) => {
+      if (err) return callback(err);
+
+      IntegrationPath.findIntegrationPathsByCompanyIdAndPath(data, (err, integration_paths) => {
+        if (err) return callback(err);
+        if (!integration_paths || !integration_paths.length)
+          return callback(null, false);
+
+        Question.findQuestionsByFiltersAndSorted({
+          company_id: company._id,
+          is_active: true,
+          integration_path_id_list: integration_paths.map(each => each._id.toString())
+        }, (err, questions) => {
+          if (err) return callback(err);
+          if (!questions.length)
+            return callback(null, false);
+
+          return callback(null, true)
+        });
+      });
+    });
+  } else {
+    Person.findPersonById(data.person_id, (err, person) => {
+      if (err) return callback(err);
+  
+      Company.findCompanyById(data.company_id, (err, company) => {
+        if (err) return callback(err);
+  
+        IntegrationPath.findIntegrationPathsByCompanyIdAndPath(data, (err, integration_paths) => {
+          if (err) return callback(err);
+          if (!integration_paths || !integration_paths.length)
+            return callback(null, false);
+  
+          Question.findQuestionsByFiltersAndSorted({
+            company_id: company._id,
+            is_active: true,
+            integration_path_id_list: integration_paths.map(each => each._id.toString())
+          }, (err, questions) => {
+            if (err) return callback(err);
+            let found_question = null;
+    
+            async.timesSeries(
+              questions.length,
+              (time, next) => {
+                const question = questions[time];
+    
+                Answer.findOneAnswer({
+                  template_id: question.template_id,
+                  person_id: person._id
+                }, err => {
+                  if (err && err != 'document_not_found') return next(err);
+      
+                  if (!err) {
+                    Person.updatePersonAnswerGroupUsingCommonDatabase({
+                      company_id: company._id,
+                      question_id: question._id,
+                      person_id: person._id
+                    }, err => {
+                      if (err) return next(err);
+      
+                      return next(null);
+                    });
+                  } else {
+                    found_question = question;
+                    return next('process_complete');
+                  }
+                });
+              },
+              err => {
+                if (err && err != 'process_complete')
+                  return callback(err);
+                if (!err)
+                  return callback(null, false);
+    
+                return callback(null, true);
+              }
+            );
+          });
+        });
+      });
+    });
+  }
+};
+
 PersonSchema.statics.getNextAdForPerson = function (data, callback) {
   const Person = this;
 
