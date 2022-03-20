@@ -460,37 +460,80 @@ PersonSchema.statics.checkNextQuestionExists = function (data, callback) {
   }
 };
 
+PersonSchema.statics.updateAdStatistics = function (data, callback) {
+  const Person = this;
+
+  Person.findPersonById(data.person_id, (err, person) => {
+    if (err) return callback(err);
+
+    Ad.findAdById(data.ad_id, (err, ad) => {
+      if (err) return callback(err);
+      if (ad.company_id.toString() != data.company_id.toString())
+        return callback('not_authenticated_request');
+      
+      Ad.findAdByIdAndUpdatePersonStatus(data, err => {
+        if (err) return callback(err);
+  
+        return callback(null);
+      });
+    });
+  });
+};
+
 PersonSchema.statics.getNextAdForPerson = function (data, callback) {
   const Person = this;
 
   Person.findPersonById(data.person_id, (err, person) => {
     if (err) return callback(err);
 
-    Ad.findAdsByCompanyId(data.company_id, (err, ads) => {
-      if (err) return callback(err);
-      let found_ad = null;
+    IntegrationPath.findIntegrationPathsByCompanyIdAndPath({
+      company_id: data.company_id,
+      path: data.path
+    }, (err, integration_paths) => {
+      if (err) return next(err);
+      if (!integration_paths.length)
+        return next(null);
 
-      async.timesSeries(
-        ads.length,
-        (time, next) => {
-          Ad.findAdByIdAndCheckIfPersonCanSee({
-            ad_id: ads[time]._id,
-            company_id: data.company_id,
-            person_id: person._id
-          }, (err, res) => {
-            if (err) return next(err);
-            if (!res) return next(null);
-
-            found_ad = ads[time];
-            return next('process_complete');
-          });
-        },
-        err => {
-          if (err && err != 'process_complete') return callback(err);
-
-          return callback(null, found_ad);
-        }
-      );
+      Ad.findAdsByFiltersAndSorted({
+        company_id: data.company_id,
+        integration_path_id_list: integration_paths.map(each => each._id.toString()),
+        is_active: true
+      }, (err, ads) => {
+        if (err) return callback(err);
+        let found_ad = null;
+  
+        async.timesSeries(
+          ads.length,
+          (time, next) => {
+            Ad.findAdByIdAndCheckIfPersonCanSee({
+              ad_id: ads[time]._id,
+              company_id: data.company_id,
+              person_id: person._id
+            }, (err, res) => {
+              if (err) return next(err);
+              if (!res) return next(null);
+  
+              found_ad = ads[time];
+              return next('process_complete');
+            });
+          },
+          err => {
+            if (err && err != 'process_complete') return callback(err);
+            if (!found_ad) return callback(null, null);
+  
+            Person.updateAdStatistics({
+              person_id: person._id,
+              ad_id: found_ad._id,
+              company_id: data.company_id,
+              status: 'showed'
+            }, err => {
+              if (err) return callback(err);
+  
+              return callback(null, found_ad);
+            });
+          }
+        );
+      });
     });
   });
 };

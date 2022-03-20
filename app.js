@@ -31,6 +31,7 @@ if (cluster.isMaster) {
   const PORT = process.env.PORT || 3000;
   const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/usersmagic';
 
+  const adRouteController = require('./routes/adRoute');
   const answerRouteController = require('./routes/answerRoute');
   const dataRouteController = require('./routes/dataRoute');
   const personRouteController = require('./routes/personRoute');
@@ -69,6 +70,7 @@ if (cluster.isMaster) {
     next();
   });
 
+  app.use('/ad', adRouteController);
   app.use('/answer', answerRouteController);
   app.use('/data', dataRouteController);
   app.use('/person', personRouteController);

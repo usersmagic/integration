@@ -1,12 +1,14 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
+const AdData = require('../ad_data/AdData');
 const Company = require('../company/Company');
-const Person = require('../person/Person');
 const TargetGroup = require('../target_group/TargetGroup');
 
+const MAX_DATABASE_ARRAY_FIELD_LENGTH = 1e4;
 const MAX_DATABASE_TEXT_FIELD_LENGTH = 1e4;
 const MAX_DATABASE_SHORT_TEXT_FIELD_LENGTH = 150;
+const MAX_AD_COUNT_PER_COMPANY = 1e2;
 
 const Schema = mongoose.Schema;
 
@@ -59,6 +61,19 @@ const AdSchema = new Schema({
   target_group_id: {
     type: mongoose.Types.ObjectId,
     required: true
+  },
+  integration_path_id_list: {
+    type: Array,
+    default: [],
+    maxlength: MAX_DATABASE_ARRAY_FIELD_LENGTH
+  },
+  is_active: {
+    type: Boolean,
+    default: true
+  },
+  created_at: {
+    type: String,
+    required: true
   }
 });
 
@@ -76,20 +91,28 @@ AdSchema.statics.findAdById = function (id, callback) {
   });
 };
 
-AdSchema.statics.findAdsByCompanyId = function (company_id, callback) {
+AdSchema.statics.findAdsByFiltersAndSorted = function (data, callback) {
   const Ad = this;
+  const filters = {};
 
-  Company.findCompanyById(company_id, (err, company) => {
-    if (err) return callback(err);
+  if (!data || typeof data != 'object')
+    return callback('bad_request');
 
-    Ad
-      .find({
-        company_id: company._id
-      })
-      .sort({ order_number: 1 })
-      .then(ads => callback(null, ads))
-      .catch(err => callback('database_error'));
-  });
+  if (data.company_id && validator.isMongoId(data.company_id.toString()))
+    filters.company_id = mongoose.Types.ObjectId(data.company_id.toString());
+
+  if ('is_active' in data)
+    filters.is_active = data.is_active ? true : false;
+
+  if (data.integration_path_id_list && Array.isArray(data.integration_path_id_list) && !data.integration_path_id_list.find(each => !validator.isMongoId(each.toString())))
+    filters.$or = data.integration_path_id_list.map(each => {
+      return { integration_path_id_list: each.toString() }
+    });
+
+  Ad.find(filters)
+  .sort({ order_number: 1 })
+  .then(ads => callback(null, ads))
+  .catch(err => callback('database_error'));
 };
 
 AdSchema.statics.findAdByIdAndCheckIfPersonCanSee = function (data, callback) {
@@ -100,21 +123,52 @@ AdSchema.statics.findAdByIdAndCheckIfPersonCanSee = function (data, callback) {
 
     Company.findCompanyById(data.company_id, (err, company) => {
       if (err) return callback(err);
-      if (ad.company_id != company._id)
+      if (ad.company_id.toString() != company._id.toString())
         return callback('not_authenticated_request');
 
-      Person.findPersonById(data.person_id, (err, person) => {
+      TargetGroup.findTargetGroupByIdAndCheckIfPersonCanSee({
+        company_id: company._id,
+        target_group_id: ad.target_group_id,
+        person_id: data.person_id
+      }, (err, res) => {
+        if (err) return callback(err);
+        if (!res) return callback(null, false);
+
+        AdData.findOneAdDataByFilters({
+          ad_id: ad._id,
+          status: ['closed', 'clicked'],
+          person_id: data.person_id
+        }, (err, ad_data) => {
+          if (err && err != 'document_not_found') return callback(err);
+          if (!err && ad_data) return callback(null, false);
+
+          return callback(null, true);
+        });
+      });
+    });
+  });
+};
+
+AdSchema.statics.findAdByIdAndUpdatePersonStatus = function (data, callback) {
+  const Ad = this;
+
+  Ad.findAdById(data.ad_id, (err, ad) => {
+    if (err) return callback(err);
+
+    AdData.pullPersonFromAdData({
+      ad_id: ad._id,
+      person_id: data.person_id
+    }, err => {
+      if (err) return callback(err);
+
+      AdData.pushPersonToAdData({
+        ad_id: ad._id,
+        person_id: data.person_id,
+        status: data.status
+      }, err => {
         if (err) return callback(err);
 
-        TargetGroup.findTargetGroupByIdAndCheckIfPersonCanSee({
-          company_id: company._id,
-          target_group_id: ad.target_group_id,
-          person_id: person._id
-        }, (err, res) => {
-          if (err) return callback(err);
-
-          return callback(null, res);
-        });
+        return callback(null);
       });
     });
   });

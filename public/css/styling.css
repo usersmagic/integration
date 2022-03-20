@@ -55,10 +55,8 @@
 }
 
 .usersmagic-content-outer-wrapper {
-  min-width: calc(max(min(94vw, 350px), 33vw));
-  width: calc(max(min(94vw, 350px), 33vw));
-  height: 50vh;
-  min-height: 50vh;
+  height: 55vh;
+  min-height: 55vh;
   background-color: rgb(254, 254, 254);
   border: 0.5px solid rgba(242, 242, 242, 0.5);
   box-shadow: 0px 0px 38.72px rgba(0, 0, 0, 0.25);
@@ -84,9 +82,9 @@
   margin-bottom: 5px;
 }
 .usersmagic-text {
-  font-weight: 600;
-  font-size: 14px;
-  color: rgb(78, 75, 102);
+  font-weight: 400;
+  font-size: 13px;
+  color: rgb(98, 98, 103);
   line-height: 20px;
   margin-bottom: 5px;
 }
@@ -107,6 +105,7 @@
   cursor: pointer;
   display: flex;
   align-items: center;
+  text-decoration: none;
 }
 .usersmagic-button:hover {
   box-shadow: 0 0 5px rgba(98, 98, 103, 0.4);
@@ -226,6 +225,23 @@
   align-items: center;
   justify-content: center;
   flex: 1;
+  overflow: hidden;
+}
+
+.usersmagic-banner-image-wrapper {
+  width: 150px;
+  height: fit-content;
+  max-height: 200px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 10px;
+  margin-top: 5px;
+}
+.usersmagic-banner-image-wrapper img {
+  width: 100%;
+  height: auto;
 }
 
 .usersmagic-check-box-wrapper  {

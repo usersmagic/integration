@@ -4,7 +4,6 @@ const validator = require('validator');
 
 const Answer = require('../answer/Answer');
 const Company = require('../company/Company');
-const Person = require('../person/Person');
 
 const MAX_DATABASE_TEXT_FIELD_LENGTH = 1e4;
 const MAX_FILTER_COUNT_PER_TARGET_GROUP = 100;
@@ -52,36 +51,32 @@ TargetGroupSchema.statics.findTargetGroupByIdAndCheckIfPersonCanSee = function (
 
     Company.findCompanyById(data.company_id, (err, company) => {
       if (err) return callback(err);
-      if (target_group.company_id != company._id)
+      if (target_group.company_id.toString() != company._id.toString())
         return callback('not_authenticated_request');
 
-      Person.findPersonById(data.person_id, (err, person) => {
-        if (err) return callback(err);
+      async.timesSeries(
+        target_group.filters.length,
+        (time, next) => {
+          const filter = target_group.filters[time];
 
-        async.timesSeries(
-          target_group.filters.length,
-          (time, next) => {
-            const filter = filters[time];
-  
-            Answer.findOneAnswer({
-              template_id: filter.template_id,
-              answer_given_to_template: filter.allowed_answers,
-              person_id: person._id
-            }, err => {
-              if (err && err == 'document_not_found') return next('process_complete');
-              if (err) return next(err);
-              
-              return next(null);
-            });
-          },
-          err => {
-            if (err && err == 'process_complete') return callback(null, false);
-            if (err) return callback(err);
-  
-            return callback(null, true);
-          }
-        );
-      });
+          Answer.findOneAnswer({
+            template_id: filter.template_id,
+            answer_given_to_template: filter.allowed_answers,
+            person_id: data.person_id
+          }, err => {
+            if (err && err == 'document_not_found') return next('process_complete');
+            if (err) return next(err);
+            
+            return next(null);
+          });
+        },
+        err => {
+          if (err && err == 'process_complete') return callback(null, false);
+          if (err) return callback(err);
+
+          return callback(null, true);
+        }
+      );
     });
   });
 };
