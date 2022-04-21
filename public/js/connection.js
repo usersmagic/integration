@@ -65,7 +65,7 @@ function usersmagic() {
       bannerDoNotShowText: 'İlginizi çekmiyor mu? ',
       bannerDoNotShowButton: 'Bir daha gösterme',
       startTitle: 'Size özel kampanyalardan yararlanma şansı yakalamak için soruları cevaplayın!',
-      agreementsTextOne: 'Devam ederek',
+      agreementsTextOne: 'Devam ederek ',
       privacyPolicy: 'Gizlilik Sözleşmesi\'ni',
       and: ' ve ',
       userAgreement: 'Kullanıcı Sözleşmesi\'ni',
@@ -463,7 +463,7 @@ function usersmagic() {
         usersmagicButton.style.backgroundColor = preferredColor;
         contentInnerWrapper.appendChild(usersmagicButton);
 
-        const usersmagicAgreementWrapper = document.createElement('div');
+        const usersmagicAgreementWrapper = document.createElement('span');
         usersmagicAgreementWrapper.classList.add('usersmagic');
         usersmagicAgreementWrapper.classList.add('usersmagic-agreement-wrapper');
 
