@@ -97,7 +97,7 @@
   align-self: center;
   font-weight: 800;
   color: rgb(254, 254, 254);
-  font-size: 14px;
+  font-size: 13px;
   padding: 0px 20px;
   height: 40px;
   border-radius: 5px;
@@ -283,19 +283,19 @@
 
 .usersmagic-choices-wrapper {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-column-gap: 20px;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-column-gap: 10px;
 }
 .usersmagic-each-choice {
   height: 40px;
   min-height: 40px;
   border: 1px solid rgba(117, 112, 101, 0.5);
   border-radius: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   text-align: center;
-  padding: 0px 10px;
+  padding: 0px 5px;
   cursor: pointer;
 }
 .usersmagic-selected-choice {
@@ -306,7 +306,7 @@
 }
 .usersmagic-choice-text {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   color: rgb(98, 98, 103);
 }
 

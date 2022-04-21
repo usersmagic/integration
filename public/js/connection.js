@@ -65,8 +65,11 @@ function usersmagic() {
       bannerDoNotShowText: 'İlginizi çekmiyor mu? ',
       bannerDoNotShowButton: 'Bir daha gösterme',
       startTitle: 'Size özel kampanyalardan yararlanma şansı yakalamak için soruları cevaplayın!',
-      privacyPolicy: 'Gizlilik Sözleşmesi',
-      userAgreement: 'Kullanıcı Sözleşmesi',
+      agreementsTextOne: 'Devam ederek',
+      privacyPolicy: 'Gizlilik Sözleşmesi\'ni',
+      and: ' ve ',
+      userAgreement: 'Kullanıcı Sözleşmesi\'ni',
+      agreementsTextTwo: ' kabul ediyorum.',
       nextButtonText: 'Devam Et',
       emailTitle: 'Size özel kampanyalardan yararlanma şansı yakalamak için e-posta adresinizi girin ve soruları cevaplayın!',
       emailPlaceholder: 'E-posta',
@@ -456,13 +459,18 @@ function usersmagic() {
         usersmagicButton.classList.add('usersmagic');
         usersmagicButton.classList.add('usersmagic-button');
         usersmagicButton.id = 'usersmagic-start-questions-button';
-        usersmagicButton.innerHTML = defaultContentText[language].acceptUserAgreementButtonText;
+        usersmagicButton.innerHTML = defaultContentText[language].nextButtonText;
         usersmagicButton.style.backgroundColor = preferredColor;
         contentInnerWrapper.appendChild(usersmagicButton);
 
         const usersmagicAgreementWrapper = document.createElement('div');
         usersmagicAgreementWrapper.classList.add('usersmagic');
         usersmagicAgreementWrapper.classList.add('usersmagic-agreement-wrapper');
+
+        const span1 = document.createElement('span');
+        span1.classList.add('usersmagic');
+        span1.innerHTML = defaultContentText[language].agreementsTextOne;
+        usersmagicAgreementWrapper.appendChild(span1);
 
         const a1 = document.createElement('a');
         a1.classList.add('usersmagic');
@@ -471,10 +479,10 @@ function usersmagic() {
         a1.innerHTML = defaultContentText[language].privacyPolicy;
         usersmagicAgreementWrapper.appendChild(a1);
 
-        const span1 = document.createElement('span');
-        span1.classList.add('usersmagic');
-        span1.innerHTML = '-';
-        usersmagicAgreementWrapper.appendChild(span1);
+        const span2 = document.createElement('span');
+        span2.classList.add('usersmagic');
+        span2.innerHTML = span1.innerHTML = defaultContentText[language].and;
+        usersmagicAgreementWrapper.appendChild(span2);
 
         const a2 = document.createElement('a');
         a2.classList.add('usersmagic');
@@ -482,6 +490,11 @@ function usersmagic() {
         a2.target = '_blank';
         a2.innerHTML = defaultContentText[language].userAgreement;
         usersmagicAgreementWrapper.appendChild(a2);
+
+        const span3 = document.createElement('span');
+        span3.classList.add('usersmagic');
+        span3.innerHTML = span1.innerHTML = defaultContentText[language].agreementsTextTwo;
+        usersmagicAgreementWrapper.appendChild(span3);
 
         contentInnerWrapper.appendChild(usersmagicAgreementWrapper);
 
@@ -511,13 +524,18 @@ function usersmagic() {
         usersmagicButton.classList.add('usersmagic');
         usersmagicButton.classList.add('usersmagic-button');
         usersmagicButton.id = 'usersmagic-approve-email-button';
-        usersmagicButton.innerHTML = defaultContentText[language].acceptUserAgreementButtonText;
+        usersmagicButton.innerHTML = defaultContentText[language].nextButtonText;
         usersmagicButton.style.backgroundColor = preferredColor;
         contentInnerWrapper.appendChild(usersmagicButton);
 
         const usersmagicAgreementWrapper = document.createElement('div');
         usersmagicAgreementWrapper.classList.add('usersmagic');
         usersmagicAgreementWrapper.classList.add('usersmagic-agreement-wrapper');
+
+        const span1 = document.createElement('span');
+        span1.classList.add('usersmagic');
+        span1.innerHTML = defaultContentText[language].agreementsTextOne;
+        usersmagicAgreementWrapper.appendChild(span1);
 
         const a1 = document.createElement('a');
         a1.classList.add('usersmagic');
@@ -526,10 +544,10 @@ function usersmagic() {
         a1.innerHTML = defaultContentText[language].privacyPolicy;
         usersmagicAgreementWrapper.appendChild(a1);
 
-        const span1 = document.createElement('span');
-        span1.classList.add('usersmagic');
-        span1.innerHTML = '-';
-        usersmagicAgreementWrapper.appendChild(span1);
+        const span2 = document.createElement('span');
+        span2.classList.add('usersmagic');
+        span2.innerHTML = span1.innerHTML = defaultContentText[language].and;
+        usersmagicAgreementWrapper.appendChild(span2);
 
         const a2 = document.createElement('a');
         a2.classList.add('usersmagic');
@@ -537,6 +555,11 @@ function usersmagic() {
         a2.target = '_blank';
         a2.innerHTML = defaultContentText[language].userAgreement;
         usersmagicAgreementWrapper.appendChild(a2);
+
+        const span3 = document.createElement('span');
+        span3.classList.add('usersmagic');
+        span3.innerHTML = span1.innerHTML = defaultContentText[language].agreementsTextTwo;
+        usersmagicAgreementWrapper.appendChild(span3);
 
         contentInnerWrapper.appendChild(usersmagicAgreementWrapper);
 
