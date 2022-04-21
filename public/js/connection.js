@@ -67,7 +67,7 @@ function usersmagic() {
       startTitle: 'Size özel kampanyalardan yararlanma şansı yakalamak için soruları cevaplayın!',
       agreementsTextOne: 'Devam ederek',
       privacyPolicy: 'Gizlilik Sözleşmesi\'ni',
-      and: ' ve ',
+      and: 've',
       userAgreement: 'Kullanıcı Sözleşmesi\'ni',
       agreementsTextTwo: 'kabul ediyorum.',
       nextButtonText: 'Devam Et',
@@ -481,7 +481,7 @@ function usersmagic() {
 
         const span2 = document.createElement('span');
         span2.classList.add('usersmagic');
-        span2.innerHTML = span1.innerHTML = defaultContentText[language].and;
+        span2.innerHTML = defaultContentText[language].and;
         usersmagicAgreementWrapper.appendChild(span2);
 
         const a2 = document.createElement('a');
@@ -493,7 +493,7 @@ function usersmagic() {
 
         const span3 = document.createElement('span');
         span3.classList.add('usersmagic');
-        span3.innerHTML = span1.innerHTML = defaultContentText[language].agreementsTextTwo;
+        span3.innerHTML = defaultContentText[language].agreementsTextTwo;
         usersmagicAgreementWrapper.appendChild(span3);
 
         contentInnerWrapper.appendChild(usersmagicAgreementWrapper);
@@ -546,7 +546,7 @@ function usersmagic() {
 
         const span2 = document.createElement('span');
         span2.classList.add('usersmagic');
-        span2.innerHTML = span1.innerHTML = defaultContentText[language].and;
+        span2.innerHTML = defaultContentText[language].and;
         usersmagicAgreementWrapper.appendChild(span2);
 
         const a2 = document.createElement('a');
@@ -558,7 +558,7 @@ function usersmagic() {
 
         const span3 = document.createElement('span');
         span3.classList.add('usersmagic');
-        span3.innerHTML = span1.innerHTML = defaultContentText[language].agreementsTextTwo;
+        span3.innerHTML = defaultContentText[language].agreementsTextTwo;
         usersmagicAgreementWrapper.appendChild(span3);
 
         contentInnerWrapper.appendChild(usersmagicAgreementWrapper);
