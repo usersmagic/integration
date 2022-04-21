@@ -9,12 +9,13 @@ window.addEventListener('load', event => {
 
 function usersmagic() {
   // Constant variables
-  const URL_PREFIX = 'https://integration.usersmagic.com'; // The url the requests will be made to
-  // const URL_PREFIX = 'http://localhost:3000';
+  // const URL_PREFIX = 'https://integration.usersmagic.com'; // The url the requests will be made to
+  const URL_PREFIX = 'http://localhost:3000';
   const COOKIE_PREFIX = 'usersmagic_'; // All cookies start with usersmagic_ prefix to avoid confusion
   const DEFAULT_COOKIE_MAX_AGE = 24 * 60 * 60 * 1000; // Default cookie maxAge property, equal to 1 day
   const ONE_YEAR_IN_MS = 365 * 24 * 60 * 60 * 1000, ONE_DAY_IN_MS = 24 * 60 * 60 * 1000, ONE_HOUR_IN_MS = 60 * 60 * 1000;
   const DEFAULT_MAX_QUESTION_COUNT = 5; // Ask 5 questions max. at start
+  const DEFAULT_START_FUNCTION_DELAY_IN_MS = 100; // Wait this much milliseconds after the document is loaded before starting the process
 
   // Global variables
   let isPopupOn = false;
@@ -63,20 +64,18 @@ function usersmagic() {
       bannerTitle: 'Sizin İçin Önerilenler',
       bannerDoNotShowText: 'İlginizi çekmiyor mu? ',
       bannerDoNotShowButton: 'Bir daha gösterme',
-      startTitle: 'Kişiselleştirilmiş indirim kodlarına erişmek için bir ankete katılmak ister misiniz?',
-      agreementsTextOne: 'Kutuyu işaretleyerek Usersmagic Inc.\'nin ',
-      privacyPolicy: 'Gizlilik Sözleşmesini',
-      agreementsTextTwo: ' ve ',
-      userAgreement: 'Kullanıcı Sözleşmesini',
-      agreementsTextThree: ' kabul ediyorum.',
+      startTitle: 'Size özel kampanyalardan yararlanma şansı yakalamak için soruları cevaplayın!',
+      privacyPolicy: 'Gizlilik Sözleşmesi',
+      userAgreement: 'Kullanıcı Sözleşmesi',
       nextButtonText: 'Devam Et',
-      emailTitle: 'Kişiselleştirilmiş indirim kodları için e-posta adresinizi buraya girin',
+      emailTitle: 'Size özel kampanyalardan yararlanma şansı yakalamak için e-posta adresinizi girin ve soruları cevaplayın!',
       emailPlaceholder: 'E-posta',
+      acceptUserAgreementButtonText: 'Aşağıdaki Sözleşmeleri Kabul Ediyorum',
       approveButtonText: 'Onayla',
       yesChoice: 'Evet',
       noChoice: 'Hayır',
-      noQuestionFoundTitle: 'Ne yazık ki bu sayfada size soracak hiçbir sorumuz bulunmuyor. Zamanınızı ayırdığınız için teşekkür ederiz. Görüşmek üzere :)',
-      noQuestionLeftTitle: 'Bu sayfadaki bütün soruları cevapladınız. Zamanınızı ayırdığınız için teşekkür ederiz. Görüşmek üzere :)',
+      noQuestionFoundTitle: 'Ne yazık ki bu sayfada size soracak hiçbir sorumuz bulunmuyor. Zamanınızı ayırdığınız için teşekkür ederiz. Görüşmek üzere.',
+      noQuestionLeftTitle: 'Bu sayfadaki bütün soruları cevapladınız. Zamanınızı ayırdığınız için teşekkür ederiz. Görüşmek üzere.',
       wantToContinueTitle: 'Sorularımızı cevapladığınız için teşekkür ederiz. İsterseniz sayfadaki diğer soruları cevaplamaya devam edebilir, veya soruları cevaplamak için daha sonra geri gelebilirsiniz.',
       searchAnswerPlaceholder: 'Listeden seçmek için cevabınızı yazın',
       yourAnswerPlaceholder: 'Cevabınız',
@@ -303,17 +302,11 @@ function usersmagic() {
           return callback(null, false);
 
         createContent({
-          type: 'start',
+          type: 'email',
         }, err => {
           if (err) return callback(err);
 
-          createContent({
-            type: 'email'
-          }, err => {
-            if (err) return callback(err);
-          
-            return callback(null, true);
-          });
+          return callback(null, true);
         });
       }
     });
@@ -453,8 +446,6 @@ function usersmagic() {
       contentInnerWrapper.innerHTML = '';
 
       if (data.type == 'start') {
-        let isCheckboxChecked = false;
-
         const usersmagicTitle = document.createElement('span');
         usersmagicTitle.classList.add('usersmagic');
         usersmagicTitle.classList.add('usersmagic-title');
@@ -465,76 +456,37 @@ function usersmagic() {
         usersmagicButton.classList.add('usersmagic');
         usersmagicButton.classList.add('usersmagic-button');
         usersmagicButton.id = 'usersmagic-start-questions-button';
-        usersmagicButton.innerHTML = defaultContentText[language].nextButtonText;
+        usersmagicButton.innerHTML = defaultContentText[language].acceptUserAgreementButtonText;
         usersmagicButton.style.backgroundColor = preferredColor;
         contentInnerWrapper.appendChild(usersmagicButton);
 
-        const usersmagicCheckBoxWrapper = document.createElement('div');
-        usersmagicCheckBoxWrapper.classList.add('usersmagic');
-        usersmagicCheckBoxWrapper.classList.add('usersmagic-check-box-wrapper');
-
-        const usersmagicCheckBox = document.createElement('div');
-        usersmagicCheckBox.classList.add('usersmagic');
-        usersmagicCheckBox.classList.add('usersmagic-check-box');
-
-        const usersmagicCheckBoxI = document.createElement('i');
-        usersmagicCheckBoxI.classList.add('usersmagic');
-        usersmagicCheckBoxI.classList.add('fas');
-        usersmagicCheckBoxI.classList.add('fa-check');
-
-        usersmagicCheckBox.appendChild(usersmagicCheckBoxI);
-        usersmagicCheckBoxWrapper.appendChild(usersmagicCheckBox);
-
-        const usersmagicCheckBoxSpan = document.createElement('span');
-        usersmagicCheckBoxSpan.classList.add('usersmagic');
-
-        const span1 = document.createElement('span');
-        span1.classList.add('usersmagic');
-        span1.innerHTML = defaultContentText[language].agreementsTextOne;
-        usersmagicCheckBoxSpan.appendChild(span1);
+        const usersmagicAgreementWrapper = document.createElement('div');
+        usersmagicAgreementWrapper.classList.add('usersmagic');
+        usersmagicAgreementWrapper.classList.add('usersmagic-agreement-wrapper');
 
         const a1 = document.createElement('a');
         a1.classList.add('usersmagic');
         a1.href = 'https://usersmagic.com/agreement/privacy';
         a1.target = '_blank';
         a1.innerHTML = defaultContentText[language].privacyPolicy;
-        usersmagicCheckBoxSpan.appendChild(a1);
+        usersmagicAgreementWrapper.appendChild(a1);
 
-        const span2 = document.createElement('span');
-        span2.classList.add('usersmagic');
-        span2.innerHTML = defaultContentText[language].agreementsTextTwo;
-        usersmagicCheckBoxSpan.appendChild(span2);
+        const span1 = document.createElement('span');
+        span1.classList.add('usersmagic');
+        span1.innerHTML = '-';
+        usersmagicAgreementWrapper.appendChild(span1);
 
         const a2 = document.createElement('a');
         a2.classList.add('usersmagic');
         a2.href = 'https://usersmagic.com/agreement/user';
         a2.target = '_blank';
         a2.innerHTML = defaultContentText[language].userAgreement;
-        usersmagicCheckBoxSpan.appendChild(a2);
+        usersmagicAgreementWrapper.appendChild(a2);
 
-        const span3 = document.createElement('span');
-        span3.classList.add('usersmagic');
-        span3.innerHTML = defaultContentText[language].agreementsTextThree;
-        usersmagicCheckBoxSpan.appendChild(span3);
-
-        usersmagicCheckBoxWrapper.appendChild(usersmagicCheckBoxSpan);
-
-        contentInnerWrapper.appendChild(usersmagicCheckBoxWrapper);
+        contentInnerWrapper.appendChild(usersmagicAgreementWrapper);
 
         document.addEventListener('click', function listenForStartButton(event) {
-          if (event.target.classList.contains('usersmagic-check-box-wrapper') || (event.target.parentNode && event.target.parentNode.classList.contains('usersmagic-check-box-wrapper')) || (event.target.parentNode && event.target.parentNode.parentNode && event.target.parentNode.parentNode.classList.contains('usersmagic-check-box-wrapper'))) {
-            if (isCheckboxChecked) {
-              usersmagicCheckBox.style.backgroundColor = 'rgb(254, 254, 254)';
-              usersmagicCheckBox.style.border = '1px solid rgb(167, 167, 168)';
-            } else {
-              usersmagicCheckBox.style.backgroundColor = preferredColor;
-              usersmagicCheckBox.style.border = 'none';
-            }
-            
-            isCheckboxChecked = !isCheckboxChecked;
-          }
-
-          if (event.target.id == 'usersmagic-start-questions-button' && isCheckboxChecked) {
+          if (event.target.id == 'usersmagic-start-questions-button') {
             document.removeEventListener('click', listenForStartButton);
             callback(null);
           }
@@ -559,9 +511,34 @@ function usersmagic() {
         usersmagicButton.classList.add('usersmagic');
         usersmagicButton.classList.add('usersmagic-button');
         usersmagicButton.id = 'usersmagic-approve-email-button';
-        usersmagicButton.innerHTML = defaultContentText[language].approveButtonText;
+        usersmagicButton.innerHTML = defaultContentText[language].acceptUserAgreementButtonText;
         usersmagicButton.style.backgroundColor = preferredColor;
         contentInnerWrapper.appendChild(usersmagicButton);
+
+        const usersmagicAgreementWrapper = document.createElement('div');
+        usersmagicAgreementWrapper.classList.add('usersmagic');
+        usersmagicAgreementWrapper.classList.add('usersmagic-agreement-wrapper');
+
+        const a1 = document.createElement('a');
+        a1.classList.add('usersmagic');
+        a1.href = 'https://usersmagic.com/agreement/privacy';
+        a1.target = '_blank';
+        a1.innerHTML = defaultContentText[language].privacyPolicy;
+        usersmagicAgreementWrapper.appendChild(a1);
+
+        const span1 = document.createElement('span');
+        span1.classList.add('usersmagic');
+        span1.innerHTML = '-';
+        usersmagicAgreementWrapper.appendChild(span1);
+
+        const a2 = document.createElement('a');
+        a2.classList.add('usersmagic');
+        a2.href = 'https://usersmagic.com/agreement/user';
+        a2.target = '_blank';
+        a2.innerHTML = defaultContentText[language].userAgreement;
+        usersmagicAgreementWrapper.appendChild(a2);
+
+        contentInnerWrapper.appendChild(usersmagicAgreementWrapper);
 
         document.addEventListener('click', function listenForEmailInput(event) {
           if (event.target.id == 'usersmagic-approve-email-button') {
@@ -573,14 +550,13 @@ function usersmagic() {
             const emailData = document.getElementById('usersmagic-email-input').value.trim();
 
             validateEmail(emailData, err => {
-              if (err) {
-                return callback(err);
-              } else {
-                email = emailData.trim();
-                setCookie('email', email, 10 * ONE_YEAR_IN_MS);
-                document.removeEventListener('click', listenForEmailInput);
-                callback(null);
-              }
+              if (err)
+                return;
+              
+              email = emailData.trim();
+              setCookie('email', email, 10 * ONE_YEAR_IN_MS);
+              document.removeEventListener('click', listenForEmailInput);
+              callback(null);
             });
           }
         });
@@ -878,6 +854,9 @@ function usersmagic() {
       contentClickerWrapper.classList.add('usersmagic');
       contentClickerWrapper.classList.add('usersmagic-content-clicker-wrapper');
 
+      if (isMobile())
+        contentClickerWrapper.style.transform = 'translateX(calc(100% - 30px))'; // Start closed on mobile
+
       const openButton = document.createElement('div');
       openButton.classList.add('usersmagic');
       openButton.classList.add('usersmagic-open-button');
@@ -1076,7 +1055,12 @@ function usersmagic() {
     setCookie(cookieName, '', 0);
   }
 
+  // Check if the browser is Mobile
+  isMobile = function () {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
   setTimeout(() => {
     start();
-  }, 2000);
+  }, DEFAULT_START_FUNCTION_DELAY_IN_MS);
 }
