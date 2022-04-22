@@ -16,6 +16,7 @@ function usersmagic() {
   const ONE_YEAR_IN_MS = 365 * 24 * 60 * 60 * 1000, ONE_DAY_IN_MS = 24 * 60 * 60 * 1000, ONE_HOUR_IN_MS = 60 * 60 * 1000;
   const DEFAULT_MAX_QUESTION_COUNT = 5; // Ask 5 questions max. at start
   const DEFAULT_START_FUNCTION_DELAY_IN_MS = 100; // Wait this much milliseconds after the document is loaded before starting the process
+  const DEFAULT_BORDER_COLOR = 'rgba(117, 112, 101, 0.5)';
 
   // Global variables
   let isPopupOn = false;
@@ -116,15 +117,21 @@ function usersmagic() {
         
               if (answer.includes(choice)) {
                 target.classList.remove('usersmagic-selected-choice');
+                target.style.borderColor = preferredColor;
                 answer = answer.filter(each => each != choice);
               } else {
                 target.classList.add('usersmagic-selected-choice');
+                target.style.borderColor = DEFAULT_BORDER_COLOR;
                 answer.push(choice);
               }
             } else {
-              if (document.querySelector('.usersmagic-selected-choice'))
+              if (document.querySelector('.usersmagic-selected-choice')) {
+                document.querySelector('.usersmagic-selected-choice').borderColor = DEFAULT_BORDER_COLOR;
                 document.querySelector('.usersmagic-selected-choice').classList.remove('usersmagic-selected-choice');
+              }
+
               target.classList.add('usersmagic-selected-choice');
+              target.style.borderColor = preferredColor;
               answer = question.subtype == 'yes_no' ? (target.childNodes[0].innerHTML == defaultContentText[language].yesChoice ? 'yes' : 'no') : target.childNodes[0].innerHTML;
             }
           }
@@ -134,9 +141,13 @@ function usersmagic() {
             
             answer = target.innerHTML;
         
-            if (document.querySelector('.usersmagic-selected-choice'))
+            if (document.querySelector('.usersmagic-selected-choice')) {
+              document.querySelector('.usersmagic-selected-choice').borderColor = DEFAULT_BORDER_COLOR;
               document.querySelector('.usersmagic-selected-choice').classList.remove('usersmagic-selected-choice');
+            }
+
             target.classList.add('usersmagic-selected-choice');
+            target.style.borderColor = preferredColor;
           }
   
           if (event.target.classList.contains('usersmagic-close-button') || event.target.parentNode.classList.contains('usersmagic-close-button')) {

@@ -298,7 +298,7 @@
   cursor: pointer;
 }
 .usersmagic-selected-choice {
-  background-color: rgba(242, 242, 242, 1) !important;
+  border-width: 2px !important;
 }
 .usersmagic-each-choice:hover {
   box-shadow: 0 0 7px rgba(151, 151, 151, 0.4);
