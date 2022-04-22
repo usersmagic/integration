@@ -117,11 +117,11 @@ function usersmagic() {
         
               if (answer.includes(choice)) {
                 target.classList.remove('usersmagic-selected-choice');
-                target.style.borderColor = preferredColor;
+                target.style.borderColor = DEFAULT_BORDER_COLOR;
                 answer = answer.filter(each => each != choice);
               } else {
                 target.classList.add('usersmagic-selected-choice');
-                target.style.borderColor = DEFAULT_BORDER_COLOR;
+                target.style.borderColor = preferredColor;
                 answer.push(choice);
               }
             } else {
