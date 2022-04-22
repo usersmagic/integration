@@ -290,13 +290,7 @@ function usersmagic() {
               if (!res)
                 return callback(null, false);
     
-              createContent({
-                type: 'start',
-              }, err => {
-                if (err) return callback(err);
-    
-                return callback(null, true);
-              });
+              return callback(null, true);
             });
           }
         });
@@ -448,63 +442,64 @@ function usersmagic() {
       const contentInnerWrapper = contentOuterWrapper.childNodes[1];
       contentInnerWrapper.innerHTML = '';
 
-      if (data.type == 'start') {
-        const usersmagicTitle = document.createElement('span');
-        usersmagicTitle.classList.add('usersmagic');
-        usersmagicTitle.classList.add('usersmagic-title');
-        usersmagicTitle.innerHTML = defaultContentText[language].startTitle;
-        contentInnerWrapper.appendChild(usersmagicTitle);
+      // if (data.type == 'start') {
+      //   const usersmagicTitle = document.createElement('span');
+      //   usersmagicTitle.classList.add('usersmagic');
+      //   usersmagicTitle.classList.add('usersmagic-title');
+      //   usersmagicTitle.innerHTML = defaultContentText[language].startTitle;
+      //   contentInnerWrapper.appendChild(usersmagicTitle);
 
-        const usersmagicButton = document.createElement('span');
-        usersmagicButton.classList.add('usersmagic');
-        usersmagicButton.classList.add('usersmagic-button');
-        usersmagicButton.id = 'usersmagic-start-questions-button';
-        usersmagicButton.innerHTML = defaultContentText[language].nextButtonText;
-        usersmagicButton.style.backgroundColor = preferredColor;
-        contentInnerWrapper.appendChild(usersmagicButton);
+      //   const usersmagicButton = document.createElement('span');
+      //   usersmagicButton.classList.add('usersmagic');
+      //   usersmagicButton.classList.add('usersmagic-button');
+      //   usersmagicButton.id = 'usersmagic-start-questions-button';
+      //   usersmagicButton.innerHTML = defaultContentText[language].nextButtonText;
+      //   usersmagicButton.style.backgroundColor = preferredColor;
+      //   contentInnerWrapper.appendChild(usersmagicButton);
 
-        const usersmagicAgreementWrapper = document.createElement('span');
-        usersmagicAgreementWrapper.classList.add('usersmagic');
-        usersmagicAgreementWrapper.classList.add('usersmagic-agreement-wrapper');
+      //   const usersmagicAgreementWrapper = document.createElement('span');
+      //   usersmagicAgreementWrapper.classList.add('usersmagic');
+      //   usersmagicAgreementWrapper.classList.add('usersmagic-agreement-wrapper');
 
-        const span1 = document.createElement('span');
-        span1.classList.add('usersmagic');
-        span1.innerHTML = defaultContentText[language].agreementsTextOne;
-        usersmagicAgreementWrapper.appendChild(span1);
+      //   const span1 = document.createElement('span');
+      //   span1.classList.add('usersmagic');
+      //   span1.innerHTML = defaultContentText[language].agreementsTextOne;
+      //   usersmagicAgreementWrapper.appendChild(span1);
 
-        const a1 = document.createElement('a');
-        a1.classList.add('usersmagic');
-        a1.href = 'https://usersmagic.com/agreement/privacy';
-        a1.target = '_blank';
-        a1.innerHTML = defaultContentText[language].privacyPolicy;
-        usersmagicAgreementWrapper.appendChild(a1);
+      //   const a1 = document.createElement('a');
+      //   a1.classList.add('usersmagic');
+      //   a1.href = 'https://usersmagic.com/agreement/privacy';
+      //   a1.target = '_blank';
+      //   a1.innerHTML = defaultContentText[language].privacyPolicy;
+      //   usersmagicAgreementWrapper.appendChild(a1);
 
-        const span2 = document.createElement('span');
-        span2.classList.add('usersmagic');
-        span2.innerHTML = defaultContentText[language].and;
-        usersmagicAgreementWrapper.appendChild(span2);
+      //   const span2 = document.createElement('span');
+      //   span2.classList.add('usersmagic');
+      //   span2.innerHTML = defaultContentText[language].and;
+      //   usersmagicAgreementWrapper.appendChild(span2);
 
-        const a2 = document.createElement('a');
-        a2.classList.add('usersmagic');
-        a2.href = 'https://usersmagic.com/agreement/user';
-        a2.target = '_blank';
-        a2.innerHTML = defaultContentText[language].userAgreement;
-        usersmagicAgreementWrapper.appendChild(a2);
+      //   const a2 = document.createElement('a');
+      //   a2.classList.add('usersmagic');
+      //   a2.href = 'https://usersmagic.com/agreement/user';
+      //   a2.target = '_blank';
+      //   a2.innerHTML = defaultContentText[language].userAgreement;
+      //   usersmagicAgreementWrapper.appendChild(a2);
 
-        const span3 = document.createElement('span');
-        span3.classList.add('usersmagic');
-        span3.innerHTML = defaultContentText[language].agreementsTextTwo;
-        usersmagicAgreementWrapper.appendChild(span3);
+      //   const span3 = document.createElement('span');
+      //   span3.classList.add('usersmagic');
+      //   span3.innerHTML = defaultContentText[language].agreementsTextTwo;
+      //   usersmagicAgreementWrapper.appendChild(span3);
 
-        contentInnerWrapper.appendChild(usersmagicAgreementWrapper);
+      //   contentInnerWrapper.appendChild(usersmagicAgreementWrapper);
 
-        document.addEventListener('click', function listenForStartButton(event) {
-          if (event.target.id == 'usersmagic-start-questions-button') {
-            document.removeEventListener('click', listenForStartButton);
-            callback(null);
-          }
-        });
-      } else if (data.type == 'email') {
+      //   document.addEventListener('click', function listenForStartButton(event) {
+      //     if (event.target.id == 'usersmagic-start-questions-button') {
+      //       document.removeEventListener('click', listenForStartButton);
+      //       callback(null);
+      //     }
+      //   });
+      // } else 
+      if (data.type == 'email') {
         const usersmagicTitle = document.createElement('span');
         usersmagicTitle.classList.add('usersmagic');
         usersmagicTitle.classList.add('usersmagic-title');
