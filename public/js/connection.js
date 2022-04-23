@@ -230,6 +230,12 @@ function usersmagic() {
             });
           }
         });
+
+        document.addEventListener('scroll', event => {
+          if (contentClickerWrapper) {
+            contentClickerWrapper.style.top = ((window.innerHeight / 2)-130 + document.querySelector('html').scrollTop) + 'px';
+          }
+        });
   
         getEmail((err, res) => { // Get the email of user, either from cookie or input
           if (err) return throwError(err);
@@ -969,6 +975,7 @@ function usersmagic() {
       contentClickerWrapper.appendChild(contentOuterWrapper);
 
       document.querySelector('html').appendChild(contentClickerWrapper);
+      contentClickerWrapper.style.top = ((window.innerHeight / 2)-130 + document.querySelector('html').scrollTop) + 'px';
 
       isPopupOn = true;
       createContent(data, err => callback(err));

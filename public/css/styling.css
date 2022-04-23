@@ -18,7 +18,7 @@
 
 .usersmagic-content-clicker-wrapper {
   position: absolute;
-  bottom: 50vh;
+  top: calc(50vh - 130px);
   right: 0px;
   display: flex;
   align-items: flex-start;
