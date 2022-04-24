@@ -17,10 +17,12 @@ function usersmagic() {
   const DEFAULT_MAX_QUESTION_COUNT = 5; // Ask 5 questions max. at start
   const DEFAULT_START_FUNCTION_DELAY_IN_MS = 100; // Wait this much milliseconds after the document is loaded before starting the process
   const DEFAULT_BORDER_COLOR = 'rgba(117, 112, 101, 0.5)';
+  const SCROLL_FOLLOW_TIME_GAP_IN_MS = 500;
 
   // Global variables
   let isPopupOn = false;
   let contentClickerWrapper = null, contentOuterWrapper = null;
+  let isKeepingScroll = false;
   let email;
   let question;
   let answer;
@@ -97,6 +99,8 @@ function usersmagic() {
     if (getCookie('forceEnd')) // Use forceEnd to stop all process on this client for 1h
       return;
 
+    isPopupOn = isNaN(getCookie('isPopupOn')) ? true : getCookie('isPopupOn'); // If cookie does not exist, start on by default
+
     getData(res => { // Check if the domain is verified with a TXT record
       if (!res) return;
 
@@ -152,9 +156,15 @@ function usersmagic() {
   
           if (event.target.classList.contains('usersmagic-close-button') || event.target.parentNode.classList.contains('usersmagic-close-button')) {
             document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(calc(100% - 30px))';
+            isPopupOn = false;
+            setCookie('isPopupOn', false, ONE_DAY_IN_MS);
           } else if (event.target.classList.contains('usersmagic')) {
+            isPopupOn = true;
+            setCookie('isPopupOn', true, ONE_DAY_IN_MS);
             document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(0px)';
           } else if (isPopupOn) {
+            isPopupOn = false;
+            setCookie('isPopupOn', false, ONE_DAY_IN_MS);
             document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(calc(100% - 30px))';
           }
         });
@@ -232,8 +242,12 @@ function usersmagic() {
         });
 
         document.addEventListener('scroll', event => {
-          if (contentClickerWrapper) {
+          if (contentClickerWrapper && !isKeepingScroll) {
+            isKeepingScroll = true;
             contentClickerWrapper.style.top = ((window.innerHeight / 2)-130 + document.querySelector('html').scrollTop) + 'px';
+            setTimeout(() => {
+              isKeepingScroll = false;
+            }, SCROLL_FOLLOW_TIME_GAP_IN_MS);
           }
         });
   
@@ -455,67 +469,10 @@ function usersmagic() {
 
   // Create or edit the usersmagic content wrapper
   createContent = function(data, callback) {
-    if (isPopupOn) {
+    if (contentClickerWrapper && contentOuterWrapper) {
       const contentInnerWrapper = contentOuterWrapper.childNodes[1];
       contentInnerWrapper.innerHTML = '';
 
-      // if (data.type == 'start') {
-      //   const usersmagicTitle = document.createElement('span');
-      //   usersmagicTitle.classList.add('usersmagic');
-      //   usersmagicTitle.classList.add('usersmagic-title');
-      //   usersmagicTitle.innerHTML = defaultContentText[language].startTitle;
-      //   contentInnerWrapper.appendChild(usersmagicTitle);
-
-      //   const usersmagicButton = document.createElement('span');
-      //   usersmagicButton.classList.add('usersmagic');
-      //   usersmagicButton.classList.add('usersmagic-button');
-      //   usersmagicButton.id = 'usersmagic-start-questions-button';
-      //   usersmagicButton.innerHTML = defaultContentText[language].nextButtonText;
-      //   usersmagicButton.style.backgroundColor = preferredColor;
-      //   contentInnerWrapper.appendChild(usersmagicButton);
-
-      //   const usersmagicAgreementWrapper = document.createElement('span');
-      //   usersmagicAgreementWrapper.classList.add('usersmagic');
-      //   usersmagicAgreementWrapper.classList.add('usersmagic-agreement-wrapper');
-
-      //   const span1 = document.createElement('span');
-      //   span1.classList.add('usersmagic');
-      //   span1.innerHTML = defaultContentText[language].agreementsTextOne;
-      //   usersmagicAgreementWrapper.appendChild(span1);
-
-      //   const a1 = document.createElement('a');
-      //   a1.classList.add('usersmagic');
-      //   a1.href = 'https://usersmagic.com/agreement/privacy';
-      //   a1.target = '_blank';
-      //   a1.innerHTML = defaultContentText[language].privacyPolicy;
-      //   usersmagicAgreementWrapper.appendChild(a1);
-
-      //   const span2 = document.createElement('span');
-      //   span2.classList.add('usersmagic');
-      //   span2.innerHTML = defaultContentText[language].and;
-      //   usersmagicAgreementWrapper.appendChild(span2);
-
-      //   const a2 = document.createElement('a');
-      //   a2.classList.add('usersmagic');
-      //   a2.href = 'https://usersmagic.com/agreement/user';
-      //   a2.target = '_blank';
-      //   a2.innerHTML = defaultContentText[language].userAgreement;
-      //   usersmagicAgreementWrapper.appendChild(a2);
-
-      //   const span3 = document.createElement('span');
-      //   span3.classList.add('usersmagic');
-      //   span3.innerHTML = defaultContentText[language].agreementsTextTwo;
-      //   usersmagicAgreementWrapper.appendChild(span3);
-
-      //   contentInnerWrapper.appendChild(usersmagicAgreementWrapper);
-
-      //   document.addEventListener('click', function listenForStartButton(event) {
-      //     if (event.target.id == 'usersmagic-start-questions-button') {
-      //       document.removeEventListener('click', listenForStartButton);
-      //       callback(null);
-      //     }
-      //   });
-      // } else 
       if (data.type == 'email') {
         const usersmagicTitle = document.createElement('span');
         usersmagicTitle.classList.add('usersmagic');
@@ -977,7 +934,11 @@ function usersmagic() {
       document.querySelector('html').appendChild(contentClickerWrapper);
       contentClickerWrapper.style.top = ((window.innerHeight / 2)-130 + document.querySelector('html').scrollTop) + 'px';
 
-      isPopupOn = true;
+      if (isPopupOn)
+        contentClickerWrapper.style.transform = 'translateX(0px))';
+      else
+        contentClickerWrapper.style.transform = 'translateX(calc(100% - 30px))';
+
       createContent(data, err => callback(err));
     }
   }
