@@ -111,7 +111,7 @@ QuestionSchema.statics.findQuestionsByFiltersAndSorted = function (data, callbac
 
   Question
     .find(filters)
-    .sort({ order_number: -1 })
+    .sort({ order_number: 1 })
     .then(questions => callback(null, questions))
     .catch(err => callback('database_error'));
 };

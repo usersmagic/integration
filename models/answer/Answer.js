@@ -96,7 +96,7 @@ AnswerSchema.statics.findOneAnswer = function (data, callback) {
 
         return callback(null, answer);
       })
-      .catch(err => {console.log(err); callback('database_error')});
+      .catch(err => callback('database_error'));
   });
 };
 

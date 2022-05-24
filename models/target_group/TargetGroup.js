@@ -61,7 +61,7 @@ TargetGroupSchema.statics.findTargetGroupByIdAndCheckIfPersonCanSee = function (
 
           Answer.findOneAnswer({
             template_id: filter.template_id,
-            answer_given_to_template: filter.allowed_answers,
+            answer_given_to_question: filter.allowed_answers,
             person_id: data.person_id
           }, err => {
             if (err && err == 'document_not_found') return next('process_complete');

@@ -15,7 +15,7 @@ function usersmagic() {
   const DEFAULT_COOKIE_MAX_AGE = 24 * 60 * 60 * 1000; // Default cookie maxAge property, equal to 1 day
   const ONE_YEAR_IN_MS = 365 * 24 * 60 * 60 * 1000, ONE_DAY_IN_MS = 24 * 60 * 60 * 1000, ONE_HOUR_IN_MS = 60 * 60 * 1000;
   const DEFAULT_MAX_QUESTION_COUNT = 5; // Ask 5 questions max. at start
-  const DEFAULT_START_FUNCTION_DELAY_IN_MS = 100; // Wait this much milliseconds after the document is loaded before starting the process
+  const DEFAULT_START_FUNCTION_DELAY_IN_MS = 100; // The wait after the document is loaded before starting the process
   const DEFAULT_BORDER_COLOR = 'rgba(117, 112, 101, 0.5)';
   const SCROLL_FOLLOW_TIME_GAP_IN_MS = 500;
 
