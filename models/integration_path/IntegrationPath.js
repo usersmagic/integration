@@ -83,7 +83,7 @@ IntegrationPathSchema.statics.findIntegrationPathsByCompanyIdAndPath = function 
 
   IntegrationPath.find({
     company_id: mongoose.Types.ObjectId(data.company_id.toString()),
-    path: { $regex: `/^${data.path.toLowerCase().split('?')[0].trim()}/` }
+    path: data.path.toLowerCase().split('?')[0].trim()
   }, (err, integration_paths) => {
     if (err) return callback('database_error');
     
