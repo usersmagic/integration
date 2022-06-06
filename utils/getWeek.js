@@ -6,16 +6,8 @@ module.exports = (week_addition, callback) => {
   if (isNaN(week_addition) || !Number.isInteger(week_addition))
     return callback('bad_request');
 
-  return callback(null, getUnixTimeForThisMonday() + week_addition * WEEK_IN_MS);
-}
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-function getUnixTimeForThisMonday() {
-  let today = new Date();
-  today.setHours(0, 0, 0);
-
-  let day_today = today.getDay() || 7;
-  let ms_since_monday = ((day_today - DAY_MONDAY) * DAY_IN_MS);
-  let monday = today.getTime() - ms_since_monday;
-
-  return monday;
+  return callback(null, today.getTime() - (today.getDay() - DAY_MONDAY) * DAY_IN_MS + week_addition * WEEK_IN_MS);
 }
