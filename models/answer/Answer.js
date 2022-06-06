@@ -172,6 +172,33 @@ AnswerSchema.statics.findAnswerByIdAndPushPerson = function (id, data, callback)
   });
 };
 
+AnswerSchema.statics.findAnswerByIdAndPullPerson = function (id, data, callback) {
+  const Answer = this;
+
+  Answer.findAnswerById(id, (err, answer) => {
+    if (err) return callback(err);
+
+    if (!data || !data.person_id || !validator.isMongoId(data.person_id.toString()))
+      return callback('bad_request');
+
+    if (!answer.person_id_list.includes(data.person_id.toString().trim()))
+      return callback(null);
+
+    Answer.findByIdAndUpdate(answer._id, {
+      $pull: {
+        person_id_list: data.person_id.toString().trim()
+      },
+      $inc: {
+        person_id_list_length: -1
+      }
+    }, err => {
+      if (err) return callback('database_error');
+
+      return callback(null);
+    });
+  });
+};
+
 AnswerSchema.statics.createAnswerWithoutProcessing = function (data, callback) {
   const Answer = this;
 
@@ -219,5 +246,35 @@ AnswerSchema.statics.checkAnswerExists = function (data, callback) {
       .catch(err => callback(false));
   });
 };
+
+AnswerSchema.statics.findAnswerByPersonIdAndQuestionIdAndDelete = function (data, callback) {
+  const Answer = this;
+
+  if (!data || typeof data != 'object')
+    return callback('bad_request');
+
+  if (!data.person_id || !validator.isMongoId(data.person_id.toString()))
+    return callback('bad_request');
+
+  if (!data.question_id || !validator.isMongoId(data.question_id.toString()))
+    return callback('bad_request');
+
+  Answer.findAnswers({
+    person_id: data.person_id,
+    question_id: data.question_id
+  }, (err, answers) => {
+    if (err) return callback(err);
+    if (!answers || !answers.length)
+      return callback(null);
+
+    Answer.findAnswerByIdAndPullPerson(answers[0]._id, {
+      person_id: data.person_id
+    }, err => {
+      if (err) return callback(err);
+
+      return callback(null);
+    })
+  })
+}
 
 module.exports = mongoose.model('Answer', AnswerSchema);

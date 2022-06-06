@@ -289,6 +289,65 @@ PersonSchema.statics.updatePersonAnswerGroupUsingCommonDatabase = function (data
   });
 }
 
+PersonSchema.statics.pullPersonFromAnswerGroups = function (data, callback) {
+  const Person = this;
+
+  if (!data || typeof data != 'object')
+    return callback('bad_request');
+  
+  if (!data.path || typeof data.path != 'string')
+    return callback('bad_request');
+
+  Person.findPersonById(data.person_id, (err, person) => {
+    if (err) return callback(err);
+
+    Company.findCompanyById(data.company_id, (err, company) => {
+      if (err) return callback(err);
+
+      IntegrationPath.findIntegrationPathsByCompanyIdAndPath(data, (err, integration_paths) => {
+        if (err) return callback(err);
+        if (!integration_paths || !integration_paths.length)
+          return callback(null);
+
+        Question.findQuestionsByFiltersAndSorted({
+          company_id: company._id,
+          integration_path_id_list: integration_paths.map(each => each._id.toString())
+        }, (err, questions) => {
+          if (err) return callback(err);
+  
+          async.timesSeries(
+            questions.length,
+            (time, next) => {
+              const question = questions[time];
+  
+              Answer.findAnswerByPersonIdAndQuestionIdAndDelete({
+                person_id: person._id,
+                question_id: question._id
+              }, err => {
+                if (err) return next(err);
+
+                return next(null);
+              });
+            },
+            err => {
+              if (err && err != 'process_complete')
+                return callback(err);
+              if (!err)
+                return callback(null);
+  
+              Question.findQuestionByIdAndFormat(found_question._id, (err, question) => {
+                if (err) return callback(err);
+  
+                return callback(null, question);
+              });
+            }
+          );
+        });
+      });
+    });
+  });
+};
+
 PersonSchema.statics.getNextQuestionForPerson = function (data, callback) {
   const Person = this;
 
