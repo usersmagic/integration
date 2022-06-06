@@ -5,6 +5,15 @@
   The project is open source, visit https://github.com/usersmagic
 */
 
+body {
+  top: 0;
+  left: 0;
+  position: sticky;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: scroll;
+}
+
 .usersmagic {
   -webkit-font-smoothing: antialiased !important;
   -webkit-box-sizing: border-box !important;
