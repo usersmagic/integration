@@ -1,0 +1,465 @@
+/*
+  This file is created for comming from justrug.com
+  File is public, however the access is only granted through usersmagic.com TXT record verified domains
+  For more information visit usersmagic.com
+  The project is open source, visit https://github.com/usersmagic
+*/
+
+.usersmagic {
+  -webkit-font-smoothing: antialiased !important;
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+  font-family: 'Poppins', 'Open Sans', 'Helvetica Neue', sans-serif !important;
+}
+
+.usersmagic-content-clicker-wrapper {
+  position: fixed;
+  margin-top: -100px;
+  right: 0px;
+  display: flex;
+  align-items: flex-start;
+  z-index: 10000;
+  height: 0px;
+  overflow: visible;
+  background-color: rgb(254, 254, 254);
+}
+
+.usersmagic-open-button {
+  height: 220px;
+  min-height: 220px;
+  width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 0px 38.72px rgba(0, 0, 0, 0.25);
+  background-color: rgb(167, 145, 131);
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  cursor: pointer;
+}
+.usersmagic-open-button span {
+  width: 220px;
+  min-width: 220px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-90deg);
+  font-weight: 600;
+  font-size: 14px;
+  color: rgb(254, 254, 254);
+}
+
+.usersmagic-content-outer-wrapper {
+  height: fit-content;
+  min-height: 55vh;
+  width: calc(min(100%, 300px));
+  min-width: calc(min(100%, 300px));
+  background-color: rgb(254, 254, 254);
+  border: 0.5px solid rgba(242, 242, 242, 0.5);
+  box-shadow: 0px 0px 38.72px rgba(0, 0, 0, 0.25);
+  border-radius: 0px 0px 0px 5px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.usersmagic-title {
+  font-weight: 600;
+  color: rgb(48, 52, 55);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  height: fit-content;
+  min-height: fit-content;
+}
+.usersmagic-text {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: rgba(48, 52, 55, 0.8);
+  margin-bottom: 25px;
+  height: fit-content;
+  min-height: fit-content;
+}
+.usersmagic-line {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.usersmagic-button {
+  margin-top: 20px;
+  align-self: center;
+  font-weight: 800;
+  color: rgb(254, 254, 254) !important;
+  font-size: 13px;
+  padding: 0px 20px;
+  height: 40px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(98, 98, 103, 0.2);
+  background-color: rgb(167, 145, 131) !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  text-align: center;
+}
+.usersmagic-button:hover {
+  box-shadow: 0 0 7px rgba(98, 98, 103, 0.5);
+}
+.usersmagic-text-button {
+  align-self: center;
+  padding: 10px 13px;
+  border-radius: 5px;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 16px;
+  background-color: rgb(167, 145, 131);
+  color: rgb(254, 254, 254);
+  cursor: pointer;
+  margin-left: 15px;
+  box-shadow: 0 0 5px rgba(151, 151, 151, 0.4);
+}
+.usersmagic-text-button:hover {
+  box-shadow: 0 0 5px rgba(151, 151, 151, 0.6);
+}
+.usersmagic-input {
+  padding: 10px 15px;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 16px;
+  color: rgba(48, 52, 55, 0.8);
+  width: 100%;
+  max-width: 250px;
+  border-radius: 5px;
+  border: 1px solid rgb(134, 146, 166);
+  outline: none;
+}
+.usersmagic-input:focus {
+  box-shadow: 0px 4px 10px 3px rgba(0, 0, 0, 0.05);
+  border-color: rgb(159, 199, 170);
+}
+.usersmagic-input::placeholder {
+  color: rgba(48, 52, 55, 0.3);
+  font-weight: 600;
+}
+
+.usersmagic-list-input-wrapper {
+  width: 100%;
+  max-width: 350px;
+  border-radius: 10px;
+  border: 1px solid rgb(134, 146, 166);
+  height: 36px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 10;
+}
+.usersmagic-list-input-wrapper-focused {
+  box-shadow: 0px 4px 10px 3px rgba(0, 0, 0, 0.05);
+  border-color: rgb(159, 199, 170) !important;
+  overflow: visible;
+  border-bottom: none;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+.usersmagic-list-input {
+  padding: 10px 15px;
+  font-weight: 700;
+  font-size: 12px;
+  color: rgb(98, 98, 103);
+  width: calc(100% - 2px);
+  margin-left: 1px;
+  max-width: 350px;
+  border-radius: 10px;
+  min-height: 35px;
+  height: 35px;
+  outline: none;
+  border: none;
+}
+.usersmagic-list-input::placeholder {
+  color: rgb(167, 167, 168);
+  font-weight: 600;
+}
+.usersmagagic-list-input-choices-wrapper {
+  height: 100px;
+  min-height: 100px;
+  width: calc(100% + 2px);
+  margin-left: -1px;
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(254, 254, 254);
+  overflow: scroll;
+  border: 1px solid rgb(140, 212, 224);
+  border-top: 0px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.usersmagic-list-input-each-choice {
+  height: fit-content;
+  min-height: fit-content;
+  width: 100%;
+  padding: 10px 15px;
+  color: rgb(98, 98, 103);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.usersmagic-list-input-each-choice:hover {
+  background-color: rgba(242, 242, 242, 0.6);
+}
+
+.usersmagic-header-wrapper {
+  margin: 20px 0px;
+  height: 20px;
+  min-height: 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 0px 15px;
+}
+.usersmagic-close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(98, 98, 103, 0.6);
+  cursor: pointer;
+}
+.usersmagic-close-button:hover {
+  color: rgba(98, 98, 103, 0.8);
+}
+.usersmagic-close-button i {
+  font-size: 12px;
+  margin-top: 3px;
+}
+.usersmagic-close-button span {
+  font-size: 14px;
+  font-weight: 700;
+  margin-left: 5px;
+}
+
+.usersmagic-content-inner-wrapper {
+  padding: 0px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  overflow: hidden;
+}
+
+.usersmagic-check-box-wrapper  {
+  width: calc(100% - 20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40px;
+  cursor: pointer;
+}
+.usersmagic-check-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(254, 254, 254);
+  border: 1px solid rgb(167, 167, 168);
+  height: 20px;
+  width: 20px;
+  min-width: 20px;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+.usersmagic-check-box i {
+  font-size: 12px;
+  color: rgb(254, 254, 254);
+}
+.usersmagic-check-box-wrapper span {
+  font-weight: 500;
+  font-size: 13px;
+  color: rgb(78, 75, 102);
+  line-height: 20px;
+}
+.usersmagic-check-box-wrapper span a {
+  font-weight: 600;
+  color: rgb(159, 199, 170);
+  font-size: 13px;
+  margin: 0px 5px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.usersmagic-question-text {
+  font-weight: 600;
+  font-size: 15px;
+  color: rgb(78, 75, 102);
+  line-height: 20px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.usersmagic-choices-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+.usersmagic-each-choice-wrapper-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  width: calc(100% + 10px);
+  height: 50px;
+}
+.usersmagic-each-choice {
+  height: 50px;
+  min-height: 50px;
+  /* width: calc(33% - 3.33px); */
+  border: 1px solid rgba(117, 112, 101, 0.5);
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0px 5px;
+  cursor: pointer;
+}
+.usersmagic-selected-choice {
+  border-width: 2px !important;
+  padding: 0px 4px;
+  border-color: rgb(159, 199, 170) !important;
+}
+.usersmagic-each-choice:hover {
+  box-shadow: 0 0 7px rgba(151, 151, 151, 0.4);
+}
+.usersmagic-choice-text {
+  font-weight: 500;
+  font-size: 12px;
+  color: rgb(98, 98, 103);
+}
+
+.usersmagic-scale-wrapper {
+  width: 100%;
+  height: 50px;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.usersmagic-each-scale-choice {
+  flex: 1;
+  height: 50px;
+  max-width: 50px;
+  margin: 0px 5px;
+  border-radius: 10px;
+  border: 1px solid rgba(117, 112, 101, 0.5);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: rgb(98, 98, 103);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.usersmagic-each-scale-choice:hover {
+  box-shadow: 0 0 7px rgba(151, 151, 151, 0.4);
+}
+
+.usersmagic-error-message {
+  height: fit-content;
+  min-height: fit-content;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(200, 0, 0);
+  text-align: center;
+  margin-top: 10px;
+}
+
+.usersmagic-banner-image-wrapper {
+  max-width: 100px;
+  height: fit-content;
+  max-height: 150px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+.usersmagic-banner-image-wrapper img {
+  width: 100%;
+  height: auto;
+}
+
+.usersmagic-banner-title {
+  font-weight: 600;
+  color: rgb(48, 52, 55);
+  font-size: 14px;
+  height: fit-content;
+  min-height: fit-content;
+  text-align: center;
+  margin-bottom: 5px;
+}
+.usersmagic-banner-text {
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 22px;
+  color: rgba(48, 52, 55, 0.8);
+  height: fit-content;
+  min-height: fit-content;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.usersmagic-show-more-button {
+  margin-top: 8px;
+  align-self: center;
+  font-weight: 700;
+  color: rgb(167, 145, 131) !important;
+  border: 2px solid rgb(167, 145, 131);
+  font-size: 13px;
+  padding: 0px 20px;
+  height: 40px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(98, 98, 103, 0.2);
+  background-color: rgb(254, 254, 254) !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  text-align: center;
+}
+.usersmagic-show-more-button:hover {
+  box-shadow: 0 0 7px rgba(98, 98, 103, 0.5);
+}
+
+.usersmagic-restart-button {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+  margin-bottom: 15px;
+  color: rgb(167, 145, 131);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.usersmagic-restart-button:hover {
+  text-decoration: underline;
+}
+
+.usersmagic-footer-wrapper {
+  height: 40px;
+  min-height: 40px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 0px 20px;
+}
+.usersmagic-footer-text {
+  font-size: 10px;
+  color: rgba(186, 183, 178, 0.8);
+  font-weight: 600;
+  margin-left: auto;
+}
