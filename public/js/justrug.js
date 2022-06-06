@@ -328,7 +328,6 @@ function usersmagic() {
       serverRequest(`/ad?email=${tempEmail}&path=${path}`, 'GET', {}, res => {
         if (!res.success)
           return callback(false);
-    
         if (!res.ad)
           return callback(false);
 

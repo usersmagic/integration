@@ -540,9 +540,9 @@ PersonSchema.statics.getNextAdForPerson = function (data, callback) {
     if (err) return callback(err);
 
     IntegrationPath.findIntegrationPathsByCompanyIdAndPath(data, (err, integration_paths) => {
-      if (err) return next(err);
+      if (err) return callback(err);
       if (!integration_paths.length)
-        return next(null);
+        return callback(null);
 
       Ad.findAdsByFiltersAndSorted({
         company_id: data.company_id,
