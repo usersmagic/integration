@@ -2,7 +2,7 @@ const async = require('async');
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-const getWeek = require('../../middleware/getWeek');
+const getWeek = require('../../utils/getWeek');
 
 const Ad = require('../ad/Ad');
 const Answer = require('../answer/Answer');
