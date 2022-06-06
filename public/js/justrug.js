@@ -9,8 +9,8 @@ window.addEventListener('load', event => {
 });
 
 function usersmagic() {
-  // const URL_PREFIX = 'https://integration.usersmagic.com';
-  const URL_PREFIX = 'http://localhost:3000';
+  const URL_PREFIX = 'https://integration.usersmagic.com';
+  // const URL_PREFIX = 'http://localhost:3000';
   const COOKIE_PREFIX = 'usersmagic_';
   const DEFAULT_COOKIE_MAX_AGE = 24 * 60 * 60 * 1000;
   const ONE_YEAR_IN_MS = 365 * 24 * 60 * 60 * 1000, ONE_DAY_IN_MS = 24 * 60 * 60 * 1000, ONE_HOUR_IN_MS = 60 * 60 * 1000;
@@ -80,11 +80,11 @@ function usersmagic() {
   const path = location.href.replace(location.origin, '');
 
   start = function() {
-    // if (window.location.hostname == 'localhost')
-    //   return;
+    if (window.location.hostname == 'localhost')
+      return;
 
-    // if (getCookie('forceEnd'))
-    //   return;
+    if (getCookie('forceEnd'))
+      return;
 
     isPopupOn = isNaN(getCookie('isPopupOn')) ? true : getCookie('isPopupOn');
 
