@@ -7,7 +7,10 @@ module.exports = (week_addition, callback) => {
     return callback('bad_request');
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setHours(0);
+  today.setMinutes(0);
+  today.setSeconds(0);
+  today.setMilliseconds(0);
 
   return callback(null, today.getTime() - (today.getDay() - DAY_MONDAY) * DAY_IN_MS + week_addition * WEEK_IN_MS);
 }
