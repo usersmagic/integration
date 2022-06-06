@@ -63,9 +63,21 @@ function usersmagic() {
       redirect: 'https://www.justrug.com/collections/usso-washable-rugs?pf_t_color=Color%3AYellow+-+Gold&pf_t_color=Color%3ARed&pf_t_color=Color%3AOrange&pf_t_color=Color%3APink&pf_t_style=Style%3ASolid&pf_t_style=Style%3ATone-on-Tone+-+Ombre'
     },
     {
+      url: 'https://www.google.com/url?q=https://www.justrug.com/products/machine-washable-area-rug-solid-modern-collection-blue-jr917&sa=D&source=editors&ust=1653494422642100&usg=AOvVaw2nR9GU0lPNw6lbxs0NAOeH',
+      redirect: 'https://www.justrug.com/collections/usso-washable-rugs?pf_t_color=Color%3ABlue&pf_t_color=Color%3AGreen&pf_t_color=Color%3APurple&pf_t_style=Style%3ASolid&pf_t_style=Style%3ATone-on-Tone+-+Ombre'
+    },
+    {
       url: 'https://www.justrug.com/products/machine-washable-area-rug-tone-on-tone-ombre-collection-cream-beige-jr855',
       redirect: 'https://www.justrug.com/collections/usso-washable-rugs?pf_t_color=Color%3ACream+-+Beige&pf_t_color=Color%3AGray+-+Anthracite&pf_t_color=Color%3ABronze+-+Brown&pf_t_style=Style%3ASolid&pf_t_style=Style%3ATone-on-Tone+-+Ombre'
-    }
+    },
+    {
+      url: 'https://www.justrug.com/products/machine-washable-area-rug-stripe-modern-collection-multicolor-jr562',
+      redirect: 'https://www.justrug.com/collections/usso-washable-rugs?pf_t_color=Color%3AMulticolor&pf_t_style=Style%3ASolid&pf_t_style=Style%3ATone-on-Tone+-+Ombre'
+    },
+    {
+      url: 'https://www.google.com/url?q=https://www.justrug.com/products/machine-washable-area-rug-solid-modern-collection-gray-anthracite-jr1602&sa=D&source=editors&ust=1653494555322005&usg=AOvVaw34mc_TVmq_eN1lMOCh1-T9',
+      redirect: 'https://www.justrug.com/collections/usso-washable-rugs?pf_t_color=Color%3ABlack&pf_t_style=Style%3ASolid&pf_t_style=Style%3ATone-on-Tone+-+Ombre'
+    },
   ];
 
   let isPopupOn = false;
