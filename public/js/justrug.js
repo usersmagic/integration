@@ -92,7 +92,7 @@ function usersmagic() {
       if (!res) return;
 
       checkQuestion(res => {
-        if (!res) return;
+        // if (!res) return;
 
         document.addEventListener('click', event => {
           if (event.target.classList.contains('usersmagic-list-input-each-choice')) {
