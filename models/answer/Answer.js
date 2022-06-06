@@ -270,8 +270,9 @@ AnswerSchema.statics.findAnswerByPersonIdAndQuestionIdAndDelete = function (data
     person_id: data.person_id,
     question_id: data.question_id
   }, (err, answers) => {
-    if (err) return callback(err);
-    if (!answers || !answers.length)
+    if (err && err != 'document_not_found')
+      return callback(err);
+    if (err || !answers || !answers.length)
       return callback(null);
 
     async.timesSeries(
@@ -286,6 +287,6 @@ AnswerSchema.statics.findAnswerByPersonIdAndQuestionIdAndDelete = function (data
       }
     );
   });
-}
+};
 
 module.exports = mongoose.model('Answer', AnswerSchema);

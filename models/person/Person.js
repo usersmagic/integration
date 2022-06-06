@@ -330,16 +330,10 @@ PersonSchema.statics.pullPersonFromAnswerGroups = function (data, callback) {
               });
             },
             err => {
-              if (err && err != 'process_complete')
+              if (err)
                 return callback(err);
-              if (!err)
-                return callback(null);
-  
-              Question.findQuestionByIdAndFormat(found_question._id, (err, question) => {
-                if (err) return callback(err);
-  
-                return callback(null, question);
-              });
+              
+              return callback(null);
             }
           );
         });
