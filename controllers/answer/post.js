@@ -14,9 +14,9 @@ module.exports = (req, res) => {
 
     Person.pushPersonToAnswerGroup({
       answer_given_to_question: req.body.answer_given_to_question,
-      person_id: person._id,
-      company_id: req.session.company_id,
-      question_id: req.body.question_id
+      person_id: person._id.toString(),
+      company_id: req.session.company_id.toString(),
+      question_id: req.body.question_id.toString()
     }, (err) => {
       if (err) {
         res.write(JSON.stringify({ error: err, success: false }));

@@ -1,3 +1,4 @@
+const async = require('async');
 const mongoose = require('mongoose');
 const validator = require('validator');
 
@@ -83,8 +84,8 @@ AnswerSchema.statics.findOneAnswer = function (data, callback) {
     if (data.answer_given_to_question && Array.isArray(data.answer_given_to_question) && data.answer_given_to_question.length)
       filters.answer_given_to_question = { $in: data.answer_given_to_question};
 
-    if (data.week_answer_is_given_in_unix_time && Number.isInteger(week_answer_is_given_in_unix_time))
-      filters.week_answer_is_given_in_unix_time = week_answer_is_given_in_unix_time;
+    if (data.week_answer_is_given_in_unix_time && Number.isInteger(data.week_answer_is_given_in_unix_time))
+      filters.week_answer_is_given_in_unix_time = data.week_answer_is_given_in_unix_time;
 
     if (data.person_id_list_not_full)
       filters.person_id_list_length = { $lt: MAX_DATABASE_ARRAY_FIELD_LENGTH };
@@ -128,8 +129,8 @@ AnswerSchema.statics.findAnswers = function (data, callback) {
     if (data.answer_given_to_question && Array.isArray(data.answer_given_to_question) && data.answer_given_to_question.length)
       filters.answer_given_to_question = { $in: data.answer_given_to_question};
 
-    if (data.week_answer_is_given_in_unix_time && Number.isInteger(week_answer_is_given_in_unix_time))
-      filters.week_answer_is_given_in_unix_time = week_answer_is_given_in_unix_time;
+    if (data.week_answer_is_given_in_unix_time && Number.isInteger(data.week_answer_is_given_in_unix_time))
+      filters.week_answer_is_given_in_unix_time = data.week_answer_is_given_in_unix_time;
 
     if (data.person_id_list_not_full)
       filters.person_id_list_length = { $lt: MAX_DATABASE_ARRAY_FIELD_LENGTH };
@@ -217,28 +218,34 @@ AnswerSchema.statics.checkAnswerExists = function (data, callback) {
   if (!data || typeof data != 'object')
     return callback(false);
 
-  getWeek(0, (err,  curr_week) => {
-    if (err) return callback(err);
+  getWeek(0, (err, curr_week) => {
+    if (err) return callback(false);
 
     const filters = {
       week_answer_will_be_outdated_in_unix_time: { $gte: curr_week }
     };
 
+    if (data.template_id && validator.isMongoId(data.template_id.toString()))
+      filters.template_id = mongoose.Types.ObjectId(data.template_id.toString());
+  
     if (data.question_id && validator.isMongoId(data.question_id.toString()))
       filters.question_id = mongoose.Types.ObjectId(data.question_id.toString());
-  
+
     if (data.person_id && validator.isMongoId(data.person_id.toString()))
       filters.person_id_list = data.person_id.toString();
-  
+
     if (data.answer_given_to_question && typeof data.answer_given_to_question == 'string' && data.answer_given_to_question.trim().length)
       filters.answer_given_to_question = data.answer_given_to_question.trim();
-  
+
+    if (data.answer_given_to_question && Array.isArray(data.answer_given_to_question) && data.answer_given_to_question.length)
+      filters.answer_given_to_question = { $in: data.answer_given_to_question};
+
     if (data.week_answer_is_given_in_unix_time && Number.isInteger(data.week_answer_is_given_in_unix_time))
       filters.week_answer_is_given_in_unix_time = data.week_answer_is_given_in_unix_time;
-  
+
     if (data.person_id_list_not_full)
       filters.person_id_list_length = { $lt: MAX_DATABASE_ARRAY_FIELD_LENGTH };
-  
+
     Answer
       .find(filters)
       .countDocuments()
@@ -267,14 +274,18 @@ AnswerSchema.statics.findAnswerByPersonIdAndQuestionIdAndDelete = function (data
     if (!answers || !answers.length)
       return callback(null);
 
-    Answer.findAnswerByIdAndPullPerson(answers[0]._id, {
-      person_id: data.person_id
-    }, err => {
-      if (err) return callback(err);
+    async.timesSeries(
+      answers.length,
+      (time, next) => Answer.findAnswerByIdAndPullPerson(answers[time]._id, {
+        person_id: data.person_id
+      }, err => next(err)),
+      err => {
+        if (err) return callback(err);
 
-      return callback(null);
-    })
-  })
+        return callback(null);
+      }
+    );
+  });
 }
 
 module.exports = mongoose.model('Answer', AnswerSchema);

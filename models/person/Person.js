@@ -170,7 +170,7 @@ PersonSchema.statics.pushPersonToAnswerGroup = function (data, callback) {
       });
     });
   } else {
-    if (!data.answer_given_to_question || typeof data.answer_given_to_question != 'string' || !data.answer_given_to_question.trim().length || data.answer_given_to_question.trim().length > MAX_DATABASE_TEXT_FIELD_LENGTH)
+    if (!data.answer_given_to_question || typeof data.answer_given_to_question != 'string' || !data.answer_given_to_question.trim().length || data.answer_given_to_question.trim().length > MAX_DATABASE_TEXT_FIELD_LENGTH)
       return callback('bad_request');
 
     if (!data.company_id)
@@ -189,7 +189,7 @@ PersonSchema.statics.pushPersonToAnswerGroup = function (data, callback) {
         Answer.checkAnswerExists({
           question_id: question._id,
           answer_given_to_question: data.answer_given_to_question,
-          person_id: data.person_id
+          person_id: person._id
         }, res => {
           if (res) return callback(null);
 
@@ -272,9 +272,9 @@ PersonSchema.statics.updatePersonAnswerGroupUsingCommonDatabase = function (data
 
               Person.pushPersonToAnswerGroup({
                 answer_given_to_question: answer.answer_given_to_question,
-                person_id: person._id,
-                question_id: question._id,
-                company_id: company._id
+                person_id: person._id.toString(),
+                question_id: question._id.toString(),
+                company_id: company._id.toString()
               }, err => next(err));
             },
             err => {
@@ -545,10 +545,7 @@ PersonSchema.statics.getNextAdForPerson = function (data, callback) {
   Person.findPersonById(data.person_id, (err, person) => {
     if (err) return callback(err);
 
-    IntegrationPath.findIntegrationPathsByCompanyIdAndPath({
-      company_id: data.company_id,
-      path: data.path
-    }, (err, integration_paths) => {
+    IntegrationPath.findIntegrationPathsByCompanyIdAndPath(data, (err, integration_paths) => {
       if (err) return next(err);
       if (!integration_paths.length)
         return next(null);
