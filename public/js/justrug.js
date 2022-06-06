@@ -77,6 +77,7 @@ function usersmagic() {
   let banner;
   let bannerClickedFirstTime = false;
   let isBannerOpen = false;
+  let requestInProgress = false;
   const path = location.href.replace(location.origin, '');
 
   start = function() {
@@ -903,8 +904,15 @@ function usersmagic() {
   }
 
   serverRequest = function (url, method, data, callback) {
-    if (!url || typeof url != 'string' || !method || typeof method != 'string' || (method != 'GET' && method != 'POST') || !data || typeof data != 'object')
+    if (requestInProgress)
+      return;
+
+    requestInProgress = true;
+
+    if (!url || typeof url != 'string' || !method || typeof method != 'string' || (method != 'GET' && method != 'POST') || !data || typeof data != 'object') {
+      requestInProgress = false;
       return callback({ success: false, error: 'bad_request' });
+    }
   
     url = URL_PREFIX + url;
 
@@ -919,10 +927,13 @@ function usersmagic() {
     }
   
     xhr.onreadystatechange = function () {
-      if (xhr.readyState == 4 && xhr.status != 200)
+      if (xhr.readyState == 4 && xhr.status != 200) {
+        requestInProgress = false;
         return callback({ success: false, error: 'network_error' })
-      else if (xhr.readyState == 4 && xhr.responseText)
+      } else if (xhr.readyState == 4 && xhr.responseText) {
+        requestInProgress = false;
         return callback(JSON.parse(xhr.responseText));
+      }
     };
   }
 
