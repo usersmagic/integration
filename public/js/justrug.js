@@ -104,8 +104,8 @@ function usersmagic() {
     getData(res => {
       if (!res) return;
 
-      checkQuestion(res => {
-        // if (!res) return;
+      checkPage(res => {
+        if (!res) return;
 
         document.addEventListener('click', event => {
           if (event.target.classList.contains('usersmagic-list-input-each-choice')) {
@@ -314,6 +314,27 @@ function usersmagic() {
 
       return callback(res.error || true);
     });
+  }
+
+  checkPage = function(callback) {
+    checkQuestion(res => {
+      if (res) return callback(true);
+
+      const tempEmail = getCookie('email');
+
+      if (!tempEmail)
+        return callback(false);
+
+      serverRequest(`/ad?email=${tempEmail}&path=${path}`, 'GET', {}, res => {
+        if (!res.success)
+          return callback(false);
+    
+        if (!res.ad)
+          return callback(false);
+
+        return callback(true);
+      });
+    })
   }
 
   checkQuestion = function(callback) {
