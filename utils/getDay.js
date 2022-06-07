@@ -4,11 +4,11 @@ module.exports = (day_addition, callback) => {
   if (isNaN(day_addition) || !Number.isInteger(day_addition))
     return callback('bad_request');
 
-  return callback(null, getUnixTimeForThisStartOfDay() + day_addition * DAY_IN_MS);
-}
+  const today = new Date();
+  today.setHours(0);
+  today.setMinutes(0);
+  today.setSeconds(0);
+  today.setMilliseconds(0);
 
-function getUnixTimeForThisStartOfDay() {
-  let today = new Date();
-  today.setHours(0, 0, 0);
-  return today;
+  return callback(null, today + day_addition * DAY_IN_MS);
 }

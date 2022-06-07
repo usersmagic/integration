@@ -2,9 +2,11 @@ const async = require('async');
 const mongoose = require('mongoose');
 const validator = require('validator');
 
+const getDay = require('../../utils/getDay');
 const getWeek = require('../../utils/getWeek');
 
 const Ad = require('../ad/Ad');
+const Analytics = require('../analytics/Analytics');
 const Answer = require('../answer/Answer');
 const Company = require('../company/Company');
 const IntegrationPath = require('../integration_path/IntegrationPath');
@@ -583,6 +585,119 @@ PersonSchema.statics.getNextAdForPerson = function (data, callback) {
             });
           }
         );
+      });
+    });
+  });
+};
+
+PersonSchema.statics.updatePersonAnalyticsData = function (data, callback) {
+  Person = this;
+
+  const analytics_status_values_by_order = ['showed', 'closed', 'email', 'question', 'ad']; // Status values are updated only in increasing order
+
+  if (!data || typeof data != 'object')
+    return callback('bad_request');
+
+  if (!data.status || typeof data.status != 'string' || !analytics_status_values_by_order.includes(data.status))
+    return callback('bad_request');
+
+  Person.findPersonById(data.person_id, (err, person) => {
+    if (err) return callback(err);
+
+    Company.findCompanyById(data.company_id, (err, company) => {
+      if (err) return callback(err);
+
+      IntegrationPath.findIntegrationPathById(data.integration_path_id, (err, integration_path) => {
+        if (err) return callback(err);
+
+        if (integration_path.company_id.toString() != company._id.toString())
+          return callback('not_authenticated_request');
+
+        getDay(0, (err, today) => {
+          if (err) return callback(err);
+
+          Analytics.findOneAnalyticsByFilters({
+            person_id: person._id,
+            integration_path_id: integration_path._id,
+            day_data_is_from_in_unix_time: today
+          }, (err, analytics) => {
+            if (err && err != 'document_not_found')
+              return callback(err);
+  
+            if (err == 'document_not_found' || !analytics) {
+              Analytics.findOneAnalyticsByFilters({
+                integration_path_id: integration_path._id,
+                day_data_is_from_in_unix_time: today,
+                status: data.status,
+                person_id_list_not_full: true
+              }, (err, analytics) => {
+                if (err && err != 'document_not_found')
+                  return callback(err);
+
+                if (err == 'document_not_found' || !analytics) {
+                  Analytics.createAnalytics({
+                    company_id: company._id,
+                    integration_path_id: integration_path._id,
+                    status: data.status
+                  }, (err, id) => {
+                    if (err) return callback(err);
+
+                    Analytics.findAnalyticsByIdAndPushPersonId(id, person._id, err => {
+                      if (err) return callback(err);
+
+                      return callback(null);
+                    });
+                  });
+                } else {
+                  Analytics.findAnalyticsByIdAndPushPersonById(analytics._id, person._id, err => {
+                    if (err) return callback(err);
+
+                    return callback(null);
+                  });
+                };
+              });
+            } else {
+              if (analytics_status_values_by_order.indexOf(analytics.status) >= analytics_status_values_by_order.indexOf(data.status))
+                return callback(null);
+  
+              Analytics.findAnalyticsByIdAndPullPersonId(analytics._id, person._id, err => {
+                if (err) return callback(err);
+
+                Analytics.findOneAnalyticsByFilters({
+                  integration_path_id: integration_path._id,
+                  day_data_is_from_in_unix_time: today,
+                  status: data.status,
+                  person_id_list_not_full: true
+                }, (err, analytics) => {
+                  if (err && err != 'document_not_found')
+                    return callback(err);
+
+                  if (err == 'document_not_found' || !analytics) {
+                    Analytics.createAnalytics({
+                      company_id: company._id,
+                      integration_path_id: integration_path._id,
+                      status: data.status
+                    }, (err, id) => {
+                      if (err) return callback(err);
+
+                      Analytics.findAnalyticsByIdAndPushPersonById(id, person._id, err => {
+                        if (err) return callback(err);
+  
+                        return callback(null);
+                      });
+                    });
+                  } else {
+                    Analytics.findAnalyticsByIdAndPushPersonById(analytics._id, person._id, err => {
+                      if (err) return callback(err);
+
+                      return callback(null);
+                    });
+                  };
+                });
+              });
+            };
+          });
+        });
       });
     });
   });

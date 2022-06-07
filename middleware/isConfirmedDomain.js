@@ -1,5 +1,7 @@
 const url = require('url');
 
+const getWeek = require('../utils/getWeek');
+
 const Company = require('../models/company/Company');
 
 module.exports = (req, res, next) => {
@@ -7,8 +9,8 @@ module.exports = (req, res, next) => {
     return next();
 
   const hostname = url.parse(req.get('origin')).hostname;
-  const domain = hostname.split('.')[hostname.split('.').length-2]+'.'+hostname.split('.')[hostname.split('.').length-1];
-  // const domain = 'stumarkt.com';
+  // const domain = hostname.split('.')[hostname.split('.').length-2]+'.'+hostname.split('.')[hostname.split('.').length-1];
+  const domain = 'stumarkt.com';
 
   Company.findCompanyByDomain(domain, (err, company) => {
     if (err) {
