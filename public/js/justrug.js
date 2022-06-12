@@ -262,6 +262,7 @@ function usersmagic() {
 
   getEmail = function(callback) {
     const nextActionTime = getCookie('nextActionTime');
+    // const nextActionTime = null;
     email = getCookie('email');
 
     validateEmail(email, err => {
@@ -471,8 +472,8 @@ function usersmagic() {
   createContent = function(data, callback) {
     if (contentClickerWrapper && contentOuterWrapper) {
       const vw = window.innerWidth;
-      contentOuterWrapper.style.width = Math.max(Math.min(0.94 * vw, 350), 0.33 * vw) + 'px';
-      contentOuterWrapper.style.minWidth = Math.max(Math.min(0.94 * vw, 350), 0.33 * vw) + 'px';
+      contentOuterWrapper.style.width = Math.min(vw - 40, 500) + 'px';
+      contentOuterWrapper.style.minWidth = Math.min(vw - 40, 500) + 'px';
 
       const contentInnerWrapper = contentOuterWrapper.childNodes[1];
       contentInnerWrapper.innerHTML = '';
@@ -715,8 +716,8 @@ function usersmagic() {
           }
         });
       } else if (data.type == 'banner') {
-        contentOuterWrapper.style.width = Math.min(0.94 * vw, 330) + 'px';
-        contentOuterWrapper.style.minWidth = Math.min(0.94 * vw, 330) + 'px';
+        contentOuterWrapper.style.width = Math.min(vw - 40, 325) + 'px';
+        contentOuterWrapper.style.minWidth = Math.min(vw - 40, 325) + 'px';
         
         const product = JUSTRUG_RECOMMENDED_PRODUCT_REDIRECTION_LINKS.find(each => each.url == banner.button_url);
         contentInnerWrapper.style.alignItems = 'center';
@@ -841,15 +842,6 @@ function usersmagic() {
       contentOuterWrapper = document.createElement('div');
       contentOuterWrapper.classList.add('usersmagic');
       contentOuterWrapper.classList.add('usersmagic-content-outer-wrapper');
-      
-      const vw = window.innerWidth;
-      if (isBannerOpen) {
-        contentOuterWrapper.style.width = Math.min(0.94 * vw, 330) + 'px';
-        contentOuterWrapper.style.minWidth = Math.min(0.94 * vw, 330) + 'px';
-      } else {
-        contentOuterWrapper.style.width = Math.max(Math.min(0.94 * vw, 350), 0.33 * vw) + 'px';
-        contentOuterWrapper.style.minWidth = Math.max(Math.min(0.94 * vw, 350), 0.33 * vw) + 'px';
-      }
 
       const headerWrapper = document.createElement('div');
       headerWrapper.classList.add('usersmagic');
@@ -909,7 +901,6 @@ function usersmagic() {
       contentClickerWrapper.appendChild(contentOuterWrapper);
 
       document.querySelector('html').appendChild(contentClickerWrapper);
-      contentClickerWrapper.style.top = ((window.innerHeight / 2)-130 + document.querySelector('html').scrollTop) + 'px';
 
       if (isPopupOn)
         contentClickerWrapper.style.transform = 'translateX(0px))';
