@@ -483,15 +483,37 @@ function usersmagic() {
 
         const usersmagicTitle = document.createElement('span');
         usersmagicTitle.classList.add('usersmagic');
-        usersmagicTitle.classList.add('usersmagic-title');
-        usersmagicTitle.innerHTML = 'Would you like us to help you find what you need?';
+        usersmagicTitle.classList.add('usersmagic-start-title');
+        usersmagicTitle.innerHTML = 'Would you like us to';
         contentInnerWrapper.appendChild(usersmagicTitle);
+
+        const usersmagicTitle2 = document.createElement('span');
+        usersmagicTitle2.classList.add('usersmagic');
+        usersmagicTitle2.classList.add('usersmagic-start-title');
+        usersmagicTitle2.innerHTML = 'help you find what you need?';
+        usersmagicTitle2.style.marginBottom = '30px';
+        contentInnerWrapper.appendChild(usersmagicTitle2);
 
         const usersmagicText = document.createElement('span');
         usersmagicText.classList.add('usersmagic');
         usersmagicText.classList.add('usersmagic-text');
-        usersmagicText.innerHTML = 'Share your email, answer a few easy questions and let our algorithm find the best washable rug models for you. Do not worry, we will never share your personal information in any way.';
+        usersmagicText.innerHTML = 'Join our 2-mins survey and find the best rug models for you!';
         contentInnerWrapper.appendChild(usersmagicText);
+
+        const usersmagicText2 = document.createElement('span');
+        usersmagicText2.classList.add('usersmagic');
+        usersmagicText2.classList.add('usersmagic-text');
+        usersmagicText2.innerHTML = '• You will never receive email from us.';
+        usersmagicText2.style.marginLeft = '30px';
+        contentInnerWrapper.appendChild(usersmagicText2);
+
+        const usersmagicText3 = document.createElement('span');
+        usersmagicText3.classList.add('usersmagic');
+        usersmagicText3.classList.add('usersmagic-text');
+        usersmagicText3.innerHTML = '• Your personal information will not be shared in any way.';
+        usersmagicText3.style.marginLeft = '30px';
+        usersmagicText3.style.marginBottom = '30px';
+        contentInnerWrapper.appendChild(usersmagicText3);
 
         const usersmagicEmailInputWrapper = document.createElement('div');
         usersmagicEmailInputWrapper.classList.add('usersmagic');
@@ -499,7 +521,7 @@ function usersmagic() {
 
         const usersmagicInput = document.createElement('input');
         usersmagicInput.type = 'email';
-        usersmagicInput.autocomplete = 'none';
+        usersmagicInput.autocomplete = 'off';
         usersmagicInput.classList.add('usersmagic');
         usersmagicInput.classList.add('usersmagic-input');
         usersmagicInput.id = 'usersmagic-email-input';
@@ -514,6 +536,11 @@ function usersmagic() {
         usersmagicEmailInputWrapper.appendChild(usersmagicButton);
 
         contentInnerWrapper.appendChild(usersmagicEmailInputWrapper);
+
+        const usersmagicEmailError = document.createElement('span');
+        usersmagicEmailError.classList.add('usersmagic');
+        usersmagicEmailError.classList.add('usersmagic-email-error');
+        contentInnerWrapper.appendChild(usersmagicEmailError);
 
         const usersmagicCheckBoxWrapper = document.createElement('div');
         usersmagicCheckBoxWrapper.classList.add('usersmagic');
@@ -549,7 +576,7 @@ function usersmagic() {
 
         const a1 = document.createElement('a');
         a1.classList.add('usersmagic');
-        a1.href = 'https://usersmagic.com/agreement/privacy';
+        a1.href = 'https://usersmagic.com/agreement/privacy?lang=en';
         a1.target = '_blank';
         a1.innerHTML = 'the Privacy Policy';
         usersmagicCheckBoxSpan.appendChild(a1);
@@ -561,7 +588,7 @@ function usersmagic() {
 
         const a2 = document.createElement('a');
         a2.classList.add('usersmagic');
-        a2.href = 'https://usersmagic.com/agreement/user';
+        a2.href = 'https://usersmagic.com/agreement/user?lang=en';
         a2.target = '_blank';
         a2.innerHTML = 'the User Agreement';
         usersmagicCheckBoxSpan.appendChild(a2);
@@ -588,7 +615,12 @@ function usersmagic() {
             isCheckboxChecked = !isCheckboxChecked;
           }
 
-          if (event.target.id == 'usersmagic-approve-email-button' && isCheckboxChecked) {
+          if (event.target.id == 'usersmagic-approve-email-button') {
+            document.querySelector('.usersmagic-email-error').innerHTML = '';
+
+            if (!isCheckboxChecked)
+              return document.querySelector('.usersmagic-email-error').innerHTML = 'Please accept the Privacy Policy and the User Agreement.';
+
             if (email && email.length) {
               document.removeEventListener('click', listenForEmailInput);
               return callback(null);
@@ -598,7 +630,7 @@ function usersmagic() {
 
             validateEmail(emailData, err => {
               if (err)
-                return;
+                return document.querySelector('.usersmagic-email-error').innerHTML = 'Please enter a valid email address.';
               
               email = emailData.trim();
               setCookie('email', email, ONE_YEAR_IN_MS);
@@ -834,7 +866,7 @@ function usersmagic() {
 
       const openButtonSpan = document.createElement('span');
       openButtonSpan.classList.add('usersmagic');
-      openButtonSpan.innerHTML = isBannerOpen ? 'Your suggestions' : 'Personalized Suggestions';
+      openButtonSpan.innerHTML = 'Find Your Rug!';
       openButton.appendChild(openButtonSpan);
 
       contentClickerWrapper.appendChild(openButton);
@@ -850,6 +882,21 @@ function usersmagic() {
       const closeButton = document.createElement('div');
       closeButton.classList.add('usersmagic');
       closeButton.classList.add('usersmagic-close-button');
+
+      const closeButtonSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+      closeButtonSvg.classList.add('usersmagic');
+      closeButtonSvg.setAttributeNS(null, 'width', '13');
+      closeButtonSvg.setAttributeNS(null, 'height', '12');
+      closeButtonSvg.setAttributeNS(null, 'viewBox', '0 0 13 12');
+      closeButtonSvg.setAttributeNS(null, 'fill', 'none');
+
+      const closeButtonPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      closeButtonPath.classList.add('usersmagic');
+      closeButtonPath.setAttributeNS(null, 'd', 'M8.45508 5.8125L11.6777 2.58984C12.0967 2.20312 12.0967 1.55859 11.6777 1.17188L10.9688 0.462891C10.582 0.0439453 9.9375 0.0439453 9.55078 0.462891L6.32812 3.68555L3.07324 0.462891C2.68652 0.0439453 2.04199 0.0439453 1.65527 0.462891L0.946289 1.17188C0.527344 1.55859 0.527344 2.20312 0.946289 2.58984L4.16895 5.8125L0.946289 9.06738C0.527344 9.4541 0.527344 10.0986 0.946289 10.4854L1.65527 11.1943C2.04199 11.6133 2.68652 11.6133 3.07324 11.1943L6.32812 7.97168L9.55078 11.1943C9.9375 11.6133 10.582 11.6133 10.9688 11.1943L11.6777 10.4854C12.0967 10.0986 12.0967 9.4541 11.6777 9.06738L8.45508 5.8125Z');
+      closeButtonPath.setAttributeNS(null, 'fill', 'rgba(98, 98, 103, 0.6)');
+      closeButtonSvg.appendChild(closeButtonPath);
+
+      closeButton.appendChild(closeButtonSvg);
 
       const closeButtonSpan = document.createElement('span');
       closeButtonSpan.classList.add('usersmagic');
