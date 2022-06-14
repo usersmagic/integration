@@ -484,20 +484,20 @@ function usersmagic() {
         const usersmagicTitle = document.createElement('span');
         usersmagicTitle.classList.add('usersmagic');
         usersmagicTitle.classList.add('usersmagic-start-title');
-        usersmagicTitle.innerHTML = 'Would you like us to';
+        usersmagicTitle.innerHTML = 'Do you need help';
         contentInnerWrapper.appendChild(usersmagicTitle);
 
         const usersmagicTitle2 = document.createElement('span');
         usersmagicTitle2.classList.add('usersmagic');
         usersmagicTitle2.classList.add('usersmagic-start-title');
-        usersmagicTitle2.innerHTML = 'help you find what you need?';
+        usersmagicTitle2.innerHTML = 'finding what you need?';
         usersmagicTitle2.style.marginBottom = '30px';
         contentInnerWrapper.appendChild(usersmagicTitle2);
 
         const usersmagicText = document.createElement('span');
         usersmagicText.classList.add('usersmagic');
         usersmagicText.classList.add('usersmagic-text');
-        usersmagicText.innerHTML = 'Join our 2-mins survey and find the best rug models for you!';
+        usersmagicText.innerHTML = 'Answer a couple questions and find the best rug models for your needs.';
         contentInnerWrapper.appendChild(usersmagicText);
 
         const usersmagicText2 = document.createElement('span');
